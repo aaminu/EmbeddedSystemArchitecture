@@ -10,12 +10,9 @@ extern uint32_t _end_bss;
 extern uint32_t _END_STACK;
 extern uint32_t _START_HEAP;
 
-static int bss_variable;
-static int initialized_variable = 31;
-
 static uint32_t sp;
 
-void main(void);
+extern void main(void);
 
 void isr_reset(void)
 {
@@ -37,7 +34,8 @@ void isr_reset(void)
         *dst++ = 0u;
     }
 
-    /* Stack Painting*/
+/* Stack Painting*/
+#ifdef STACK_PAINTING
     {
         asm volatile("mrs %0, msp" : "=r"(sp));
         dst = ((uint32_t *)(&_END_STACK)) - ((8 * 1024) / sizeof(uint32_t));
@@ -47,6 +45,7 @@ void isr_reset(void)
             dst++;
         }
     }
+#endif
 
     /*Run the main */
     main();
@@ -63,22 +62,6 @@ void isr_fault(void)
 void isr_empty(void)
 {
     /* Ignore the event and continue */
-}
-
-void __attribute__((used, noreturn)) main(void)
-{
-    while (1)
-    {
-        bss_variable++;
-        initialized_variable++;
-        if (bss_variable % 1000 == 0)
-        {
-            /*Trigger a SVC*/
-            asm volatile("svc 0");
-        }
-        for (unsigned int i; i < 150000; i++)
-            ;
-    }
 }
 
 __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
