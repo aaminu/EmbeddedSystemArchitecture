@@ -1,11 +1,11 @@
 #include <stdint.h>
 
-#define NULL (((void *)0))
-
 extern uint32_t _START_HEAP;
-extern uint32_t _END_STACK;
-extern uint32_t STACK_SIZE;
-extern uint32_t GUARD_SIZE;
+extern uint32_t _END_HEAP;
+
+#define NULL (((void *)0))
+#define GUARD_SIZE (0x400)
+#define HEAP_GUARD ((uint32_t)((char *)(&_END_HEAP) - GUARD_SIZE))
 
 /*Add ifdef flag if wanted optional*/
 /**Add endheap limit check*/
@@ -58,7 +58,7 @@ void *malloc(uint32_t size)
     ret = ((char *)end_heap) + sizeof(struct malloc_block);
     end_heap = (uint32_t *)(ret + size);
 
-    if ((uint32_t)ret >= (_END_STACK - (STACK_SIZE + GUARD_SIZE)))
+    if ((uint32_t)end_heap >= HEAP_GUARD)
         return NULL;
 
     return (void *)ret;
@@ -94,7 +94,7 @@ void *_sbrk(uint32_t size)
         heap = previos_heap_pos = (uint8_t *)&_START_HEAP;
     }
 
-    if ((heap + size) >= (_END_STACK - (STACK_SIZE + GUARD_SIZE)))
+    if ((heap + size) >= HEAP_GUARD)
         return (void *)(-1);
     else
         heap += size;

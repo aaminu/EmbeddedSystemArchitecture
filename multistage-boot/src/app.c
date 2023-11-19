@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "systick.h"
 
 /* Pointers to memory in RAM for different symbols */
 extern uint32_t _stored_data; // Load memory area on Flash
@@ -16,22 +17,25 @@ extern void main(void);
 
 void isr_reset(void)
 {
-    uint32_t *src, *dst;
+    volatile uint32_t *src, *dst;
 
     /*Initialized data copy (.data)*/
-    src = &_stored_data;
-    dst = &_start_data;
+    src = (uint32_t *)&_stored_data;
+    dst = (uint32_t *)&_start_data;
 
-    while (dst != &_end_data)
+    while (dst != (uint32_t *)&_end_data)
     {
-        *dst++ = *src++;
+        *dst = *src;
+        dst++;
+        src++;
     }
 
     /*zero out uninitilized values*/
-    dst = &_start_bss;
-    while (dst != &_end_bss)
+    dst = (uint32_t *)&_start_bss;
+    while (dst != (uint32_t *)&_end_bss)
     {
-        *dst++ = 0u;
+        *dst = 0u;
+        dst++;
     }
 
 /* Stack Painting*/
@@ -78,7 +82,7 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     isr_empty,                     // Debug Monitor event
     0,                             // REserved
     isr_empty,                     // PendSV call
-    isr_empty,                     // Systemtick
+    systick_isr,                   // Systemtick
     isr_empty,                     // GPIO Port B
     isr_empty,                     // GPIO Port B
     isr_empty,                     // GPIO Port B

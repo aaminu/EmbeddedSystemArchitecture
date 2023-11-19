@@ -1,7 +1,7 @@
 #include <stdint.h>
 
-#define VTOR (*(volatile uint32_t *)0xE000ED08) // Vector Table Offset Register Address
-#define APP_OFFSET (0x00001000)                 // Application partition offset
+// Vector Table Offset Register Address
+#define APP_OFFSET (0x08004000) // Application partition offset
 #define BOOTLOADER
 
 /* symbols for memory locations in declared in linker */
@@ -12,11 +12,11 @@ extern uint32_t _start_bss;
 extern uint32_t _end_bss;
 extern uint32_t _END_STACK;
 
-void main(void);
+void main_bl(void);
 
-void isr_reset(void)
+void isr_reset_bl(void)
 {
-    uint32_t *src, *dst;
+    volatile uint32_t *src, *dst;
 
     /*Initialized data copy (.data)*/
     src = (uint32_t *)&_stored_data;
@@ -24,18 +24,21 @@ void isr_reset(void)
 
     while (dst != (uint32_t *)&_end_data)
     {
-        *dst++ = *src++;
+        *dst = *src;
+        dst++;
+        src++;
     }
 
     /*zero out uninitilized values*/
     dst = (uint32_t *)&_start_bss;
-    while (dst != &_end_bss)
+    while (dst != (uint32_t *)&_end_bss)
     {
-        *dst++ = 0u;
+        *dst = 0u;
+        dst++;
     }
 
     /*Run the main */
-    main();
+    main_bl();
 }
 
 void isr_fault(void)
@@ -51,7 +54,7 @@ void isr_empty(void)
     /* Ignore the event and continue */
 }
 
-void main()
+void main_bl()
 {
     void (*app_entry)(void);
     uint32_t app_end_stack;
@@ -59,12 +62,13 @@ void main()
     /*Disable all interrupts*/
     asm volatile("cpsid i");
 
-    /*update VTOR; with Offset to the Application IV*/
-    VTOR = (uint32_t)((uint32_t *)(APP_OFFSET));
+    /*update VTOR; with Offset to the Application IVT start*/
+    volatile uint32_t *vtor = (uint32_t *)0xE000ED08;
+    *vtor = ((uint32_t)APP_OFFSET & 0xFFFFFFF8);
 
     /*get stack point and entry function(isr_reset)*/
     app_end_stack = (*((uint32_t *)(APP_OFFSET)));
-    app_entry = (void *)(*(uint32_t *)(APP_OFFSET + 4));
+    app_entry = (void (*)(void))(*(uint32_t *)(APP_OFFSET + 4));
 
     /*Update stack pointer*/
     /*MSR to move value from normal register to special register*/
@@ -80,7 +84,7 @@ void main()
 __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
 
     (void (*)(void))(&_END_STACK), // Stack Pointer
-    isr_reset,                     // Reset
+    isr_reset_bl,                  // Reset
     isr_fault,                     // Non maskable interrupt
     isr_fault,                     // Hard fault
     isr_fault,                     // Memory fault

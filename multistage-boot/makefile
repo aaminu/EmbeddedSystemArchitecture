@@ -15,6 +15,10 @@ TARGET_EXEC:=image.bin
 BUILD_DIR:=./build
 SRC_DIR:=./src
 
+# OpenOCD file
+DEBUG_FILE:=./debug.cfg
+INSTALL_FILE:=./flash.cfg
+
 # Source Files
 SRCS:=$(shell find $(SRC_DIR) -name '*.c' -or -name '*.s')
 
@@ -40,15 +44,19 @@ BINARY:=$(BUILD_DIR)/$(BOOTLOADER).bin $(BUILD_DIR)/$(APP).bin
 $(BUILD_DIR)/$(TARGET_EXEC): $(sort $(BINARY))
 	@mkdir -p $(dir $@)
 	@ls $(^)
-	cat $(^) > $(@)
+# 	cat $(^) > $(@)
 
 # Build Binary Files
 $(BUILD_DIR)/$(BOOTLOADER).bin: $(BUILD_DIR)/$(BOOTLOADER).elf
 	@mkdir -p $(dir $@)
-	$(OBJCOPY) -O binary --pad-to=0x001000 --gap-fill=0xFF $(^) $(@)
+#	$(OBJCOPY) -O binary --pad-to=0x010 --gap-fill=0xEA $(^) $(@)
+	$(OBJCOPY) -O binary $(^) $(@)
+	@xxd $(@) $(@).txt
 
 $(BUILD_DIR)/$(APP).bin: $(BUILD_DIR)/$(APP).elf
+	@mkdir -p $(dir $@)
 	$(OBJCOPY) -O binary $(^) $(@)
+	@xxd $(@) $(@).txt
 
 
 # Build ElF Files
@@ -63,9 +71,20 @@ $(BUILD_DIR)/$(APP).elf: $(sort $(OBJS)) $(APP).ld
 
 
 # Compile C source files to object files
-$(OBJS): $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $(<) -o $(@) 
+
+
+#flash
+.PHONY: flash
+flash:
+	@openocd -f $(INSTALL_FILE)
+
+#flash
+.PHONY: debug
+debug:
+	@openocd -f $(DEBUG_FILE)
 
 #Clean
 .PHONY: clean
