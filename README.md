@@ -1,33 +1,63 @@
-## Using OpenOCD
-To start openocd
-```bash
-openocd -f <filepath to .cfg>
-```
-openocd path is located at  `/usr/share/openocd/`
+## Makefile
+Each folder has its own makefiles. One problem I encountered initially was my makefile not properly formatted, this can be checked by issuing `cat -e -t -v <makefile_name>`. The output will have $ denoting line endings and ^I indicating tab.
 
+## Debuging Using OpenOCD
+Debugging is done with the help of OpenOCD. Two scripts are provided:
+- [flash.cfg](./multistage-boot/flash.cfg)
+- [debug.cfg](./multistage-boot/debug.cfg)
 
-Connect to the telnet port
+The scripts above can be used in different scenarios listed above:
+1. Changes to source files would required rebuilding and flashing the target. The script from above have been incorporated into the [makefile](./multistage-boot/makefile) and a typical process would look like.
+    ```bash
+    cd <directory>
+    make clean
+    make
+    make flash
+    make debug
+    ```
+2. No changes but a new board to be flashed, the process would look like 
+    ```bash
+    cd <directory>
+    make flash
+    make debug
+    ```
+    or 
+    ```bash
+    cd <directory>
+    openocd -f flash.cfg
+    openocd -f debug.cfg
+    ```
+3. Simple debugging
+    ```bash
+    cd <directory>
+    openocd -f debug.cfg
+    ```
+Once the debug server is started and listening for connections on the tcp port, use the arm-none-eabi-gdb to connect. Since it is a multistage boot system, the symbol files are loaded individual:
 ```bash
-telnet localhost <port specified>
-```
-
-Probing the device by
-```bash
-> init
-> halt
-> flash probe 0
-> flash info 0
-> flash 0 0 <number of sector>
-> flash write_image <path/to/image.bin> <start address>
-```
-Connecting to the debug server provided by openocd using the arm-none-eabi-gdb tool
-```bash
-> arm-none-eabi-gdb
+arm-none-eabi-gdb -q /home/aaminu/ESA/multistage-boot/build/_bootloader.elf
 (gdb) target extended-remote localhost:3333
-```
-Debug a system using Qemu
-```
-qemu-system-arm -machine <machine type> --kernel <image binary> -nographic -S -gdb tcp:3333
+(gdb) load
+(gdb) add-symbol-file /home/aaminu/ESA/multistage-boot/build/app.elf 0x8004000
+# Answer y to the prompt
+
+# Set the breakpoint, example below
+(gdb) b main
+(gdb) continue
+
+# After breakpoint is reached, I like to use the layout to see where in the sorce code I am
+(gdb) layout src
+# Step through as you wish inspecting symbols and registers
 ```
 
-Checking if the Makefile is properly formatted with tabs and line endings, do `cat -e -t -v <makefile_name>`. The output will have $ denoting line endings and ^I indicating tab.
+Furthermore, one can connect to the openocd server by using the following commands and inspect the target device:
+
+    ```bash
+    telnet localhost 4444
+    > init
+    > halt
+    > flash probe 0
+    > flash info 0
+    > flash erase_sector 0 0 <number of sector>
+    > flash write_image <path/to/image.bin> <start address>
+    ```
+Finally, openocd path is located at  `/usr/share/openocd/`
