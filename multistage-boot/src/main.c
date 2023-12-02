@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "system.h"
 #include "systick.h"
+#include "gpios.h"
 
 static int bss_variable;
 static int initialized_variable = 31;
@@ -15,19 +16,35 @@ void main(void)
     sys_clock_config();
     systick_enable();
 
+    /*Setup GPIOS*/
+    gpio_dt_spec led = U_LED3;
+    gpio_dt_spec led1 = U_LED4;
+    gpio_dt_spec button = U_BUTN;
+
+    gpio_init(&led);
+    gpio_init(&led1);
+    gpio_init(&button);
+
+    gpio_set(&led, 1);
+    gpio_set(&led1, 0);
+
+    unsigned int ticks = millis();
+
     while (1)
     {
-        char *c = (char *)malloc(10);
+        // char *c = (char *)malloc(10);
         bss_variable++;
         initialized_variable++;
-        unsigned int tick = millis();
-        if (bss_variable % 1000 == 0)
+
+        // free(c);
+
+        if ((millis() - ticks) / 1000 >= 1)
         {
-            /*Trigger a SVC*/
-            asm volatile("svc 0");
+            gpio_toggle(&led);
+            ticks = millis();
         }
-        for (unsigned int i; i < 150000; i++)
-            ;
-        free(c);
+
+        if (gpio_value(&button))
+            gpio_toggle(&led1);
     }
 }

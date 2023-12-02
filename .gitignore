@@ -3,3 +3,4 @@
 *.elf
 *.bin
 esa_env*
+/multistage-boot/build/

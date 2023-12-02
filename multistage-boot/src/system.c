@@ -12,6 +12,7 @@
 #define RCC_CR (*(volatile uint32_t *)(RCC_BASE + 0x00))
 #define RCC_PLLCFGR (*(volatile uint32_t *)(RCC_BASE + 0x04))
 #define RCC_CFGR (*(volatile uint32_t *)(RCC_BASE + 0x08))
+#define RCC_APB1ENR (*(volatile uint32_t *)(RCC_BASE + 0x40))
 
 #define RCC_CR_PLLRDY (1 << 25)
 #define RCC_CR_PLLON (1 << 24)
@@ -19,6 +20,8 @@
 #define RCC_CR_HSEON (1 << 16)
 #define RCC_CR_HSIRDY (1 << 1)
 #define RCC_CR_HSION (1 << 0)
+#define RCC_PLLCFGR_PLLSRC (1 << 22)
+#define RCC_PWR_EN (1 << 28)
 
 #define RCC_CFGR_SW_HSI 0x0
 #define RCC_CFGR_SW_HSE 0x1
@@ -26,8 +29,6 @@
 #define RCC_CFGR_SWS_HSIRDY (RCC_CFGR_SW_HSI << 2)
 #define RCC_CFGR_SWS_HSERDY (RCC_CFGR_SW_HSE << 2)
 #define RCC_CFGR_SWS_PLLRDY (RCC_CFGR_SW_PLL << 2)
-
-#define RCC_PLLCFGR_PLLSRC (1 << 22)
 
 /*AHB Prescaler*/
 #define RCC_PRESCALER_DIV_NONE 0
@@ -42,6 +43,12 @@
 #define PLLP 0 // PLLP = 2
 #define PLLQ 7
 #define PLLR 0
+
+/******PWR*******/
+#define PWR_BASE (0x40007000)
+#define PWR_CR (*(volatile uint32_t *)(PWR_BASE + 0x00))
+
+#define RCC_CR_VOS_EN (1 << 14)
 
 /*Export NVIC Inline*/
 extern inline void nvic_disable_irq(uint8_t n);
@@ -85,6 +92,11 @@ static void clock_config(void)
     DMB();
     while (!(RCC_CR & RCC_CR_HSERDY))
         ;
+
+    /*Enable Power Enable Clock*/
+    RCC_APB1ENR |= RCC_PWR_EN;
+    PWR_CR |= RCC_CR_VOS_EN;
+    DMB();
 
     /* Set prescalers for AHB, APB1(Lowspeed), APB2(High speed)*/
     reg = RCC_CFGR;
