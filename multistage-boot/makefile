@@ -3,6 +3,7 @@ CROSS_COMPILE:=arm-none-eabi-
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 OBJCOPY:=$(CROSS_COMPILE)objcopy
+GDB:=$(CROSS_COMPILE)gdb
 
 # Compiler and Linker Files
 CFLAGS:=-mthumb -mcpu=cortex-m3 -g -ggdb -Wall -Wno-main -Wstack-usage=200 -ffreestanding -Wno-unused -DOWN_MALLOC #-DSTACK_PAINTING
@@ -18,6 +19,8 @@ SRC_DIR:=./src
 # OpenOCD file
 DEBUG_FILE:=./debug.cfg
 INSTALL_FILE:=./flash.cfg
+GDB_SCRIPT = ./gdb_script.gdb
+
 
 # Source Files
 SRCS:=$(shell find $(SRC_DIR) -name '*.c' -or -name '*.s')
@@ -85,6 +88,18 @@ flash:
 .PHONY: debug
 debug:
 	@openocd -f $(DEBUG_FILE)
+
+#flash
+.PHONY: gdb
+gdb:
+	@echo "target extended-remote localhost:3333" > $(GDB_SCRIPT)
+	@echo "load" >> $(GDB_SCRIPT)
+	@echo "add-symbol-file $(BUILD_DIR)/$(APP).elf 0x8004000" >> $(GDB_SCRIPT)
+	@echo "echo Y\n b main" >> $(GDB_SCRIPT)
+	@echo "continue" >> $(GDB_SCRIPT)
+	$(GDB) -q $(BUILD_DIR)/$(BOOTLOADER).elf -x $(GDB_SCRIPT)
+	@rm -f $(GDB_SCRIPT)
+
 
 #Clean
 .PHONY: clean
