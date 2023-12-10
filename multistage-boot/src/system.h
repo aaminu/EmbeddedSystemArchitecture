@@ -39,56 +39,56 @@
 
 /**
  * @brief Enables an external interrupt
- * @param n - Interrupt Number
+ * @param irqn - Interrupt Number
  */
-inline void nvic_enable_irq(uint8_t n)
+inline void nvic_enable_irq(uint8_t irqn)
 {
-    uint8_t i = n / 32;
+    uint8_t i = irqn / 32;
     volatile uint32_t *nvic_serenax = (volatile uint32_t *)(NVIC_ISER_BASE + (4 * i));
-    *nvic_serenax |= (1 << (n % 32));
+    *nvic_serenax |= (1 << (irqn % 32));
 }
 
 /**
  * @brief Disables an external interrupt
- * @param n - Interrupt Number
+ * @param irqn - Interrupt Number
  */
-inline void nvic_disable_irq(uint8_t n)
+inline void nvic_disable_irq(uint8_t irqn)
 {
-    uint8_t i = n / 32;
+    uint8_t i = irqn / 32;
     volatile uint32_t *nvic_clrenax = (volatile uint32_t *)(NVIC_ICER_BASE + (4 * i));
-    *nvic_clrenax |= (1 << (n % 32));
+    *nvic_clrenax |= (1 << (irqn % 32));
 }
 
 /**
  * @brief Sets the pending state of an interrupt
- * @param n - Interrupt Number
+ * @param irqn - Interrupt Number
  */
-inline void nvic_set_pending_irq(uint8_t n)
+inline void nvic_set_pending_irq(uint8_t irqn)
 {
-    uint8_t i = n / 32;
+    uint8_t i = irqn / 32;
     volatile uint32_t *nvic_setpendx = (volatile uint32_t *)(NVIC_ISPR_BASE + (4 * i));
-    *nvic_setpendx |= (1 << (n % 32));
+    *nvic_setpendx |= (1 << (irqn % 32));
 }
 
 /**
  * @brief Clears the pending state of an interrupt
- * @param n - Interrupt Number
+ * @param irqn - Interrupt Number
  */
-inline void nvic_clear_pending_irq(uint8_t n)
+inline void nvic_clear_pending_irq(uint8_t irqn)
 {
-    uint8_t i = n / 32;
+    uint8_t i = irqn / 32;
     volatile uint32_t *nvic_clrpendx = (volatile uint32_t *)(NVIC_ICPR_BASE + (4 * i));
-    *nvic_clrpendx |= (1 << (n % 32));
+    *nvic_clrpendx |= (1 << (irqn % 32));
 }
 
 /**
  * @brief Set the Priority of a Peripheral
- * @param n - Interrupt Number
+ * @param irqn - Interrupt Number
  * @param prio - Priority Level
  */
-inline void nvic_set_prio_irq(uint8_t n, uint8_t prio)
+inline void nvic_set_prio_irq(uint8_t irqn, uint8_t prio)
 {
-    volatile uint8_t *nvic_setpri = (volatile uint8_t *)(NVIC_IPR_BASE + n);
+    volatile uint8_t *nvic_setpri = (volatile uint8_t *)(NVIC_IPR_BASE + irqn);
     *nvic_setpri = prio;
 }
 

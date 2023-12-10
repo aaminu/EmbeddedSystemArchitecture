@@ -96,52 +96,88 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     0,                             // REserved
     isr_empty,                     // PendSV call
     isr_empty,                     // Systemtick
-    isr_empty,                     // GPIO Port B
-    isr_empty,                     // GPIO Port B
-    isr_empty,                     // GPIO Port B
-    isr_empty,                     // GPIO Port A
-    isr_empty,                     // GPIO Port C
-    isr_empty,                     // GPIO Port D
-    isr_empty,                     // GPIO Port E
-    isr_empty,                     // UART0 Rx and Tx
-    isr_empty,                     // UART1 Rx and Tx
-    isr_empty,                     // SSI0 Rx and Tx
-    isr_empty,                     // I2C0 Master and Slave
-    isr_empty,                     // PWM Fault
-    isr_empty,                     // PWM Generator 0
-    isr_empty,                     // PWM Generator 1
-    isr_empty,                     // PWM Generator 2
-    isr_empty,                     // Quadrature Encoder 0
-    isr_empty,                     // ADC Sequence 0
-    isr_empty,                     // ADC Sequence 1
-    isr_empty,                     // ADC Sequence 2
-    isr_empty,                     // ADC Sequence 3
-    isr_empty,                     // Watchdog timer
-    isr_empty,                     // Timer 0 subtimer A
-    isr_empty,                     // Timer 0 subtimer B
-    isr_empty,                     // Timer 1 subtimer A
-    isr_empty,                     // Timer 1 subtimer B
-    isr_empty,                     // Timer 2 subtimer A
-    isr_empty,                     // Timer 3 subtimer B
-    isr_empty,                     // Analog Comparator 0
-    isr_empty,                     // Analog Comparator 1
-    isr_empty,                     // Analog Comparator 2
-    isr_empty,                     // System Control (PLL, OSC, BO)
-    isr_empty,                     // FLASH Control
-    isr_empty,                     // GPIO Port F
-    isr_empty,                     // GPIO Port G
-    isr_empty,                     // GPIO Port H
-    isr_empty,                     // UART2 Rx and Tx
-    isr_empty,                     // SSI1 Rx and Tx
-    isr_empty,                     // Timer 3 subtimer A
-    isr_empty,                     // Timer 3 subtimer B
-    isr_empty,                     // I2C1 Master and Slave
-    isr_empty,                     // Quadrature Encoder 1
-    isr_empty,                     // CAN0
-    isr_empty,                     // CAN1
-    isr_empty,                     // CAN2
-    isr_empty,                     // Ethernet
-    isr_empty,                     // Hibernate
+    isr_empty,                     // WWDG
+    isr_empty,                     // PVD
+    isr_empty,                     // TAMP_STAMP
+    isr_empty,                     // RTC _WKUP
+    isr_empty,                     // FLASH
+    isr_empty,                     // RCC
+    isr_empty,                     // EXTI0
+    isr_empty,                     // EXTI1
+    isr_empty,                     // EXTI2
+    isr_empty,                     // EXTI3
+    isr_empty,                     // EXTI4
+    isr_empty,                     // DMA1_Stream0
+    isr_empty,                     // DMA1_Stream1
+    isr_empty,                     // DMA1_Stream2
+    isr_empty,                     // DMA1_Stream3
+    isr_empty,                     // DMA1_Stream4
+    isr_empty,                     // DMA1_Stream5
+    isr_empty,                     // DMA1_Stream6
+    isr_empty,                     // ADC
+    isr_empty,                     // CAN1_TX
+    isr_empty,                     // CAN1_RX0
+    isr_empty,                     // CAN1_RX1
+    isr_empty,                     // CAN1_SCE
+    isr_empty,                     // EXTI9_5
+    isr_empty,                     // TIM1_BRK_TIM9
+    isr_empty,                     // TIM1_UP_TIM10
+    isr_empty,                     // TIM1_TRG_COM_TIM11
+    isr_empty,                     // TIM1_CC
+    isr_empty,                     // TIM2
+    isr_empty,                     // TIM3
+    isr_empty,                     // TIM4
+    isr_empty,                     // I2C1_EV
+    isr_empty,                     // I2C1_ER
+    isr_empty,                     // I2C2_EV
+    isr_empty,                     // I2C2_ER
+    isr_empty,                     // SPI1
+    isr_empty,                     // SPI2
+    isr_empty,                     // USART1
+    isr_empty,                     // USART2
+    isr_empty,                     // USART3
+    isr_empty,                     // EXTI15_10
+    isr_empty,                     // RTC_Alarm
+    isr_empty,                     // OTG_FS_WKUP
+    isr_empty,                     // TIM8_BRK_TIM12
+    isr_empty,                     // TIM8_UP_TIM13
+    isr_empty,                     // TIM8_TRG_COM_TIM14
+    isr_empty,                     // TIM8_CC
+    isr_empty,                     // DMA1_Stream7
+    isr_empty,                     // FSMC
+    isr_empty,                     // SDIO
+    isr_empty,                     // TIM5
+    isr_empty,                     // SPI3
+    isr_empty,                     // UART4
+    isr_empty,                     // UART5
+    isr_empty,                     // TIM6_DAC
+    isr_empty,                     // TIM7
+    isr_empty,                     // DMA2_Stream0
+    isr_empty,                     // DMA2_Stream1
+    isr_empty,                     // DMA2_Stream2
+    isr_empty,                     // DMA2_Stream3
+    isr_empty,                     // DMA2_Stream4
+    isr_empty,                     // ETH
+    isr_empty,                     // ETH_WKUP
+    isr_empty,                     // CAN2_TX
+    isr_empty,                     // CAN2_RX0
+    isr_empty,                     // CAN2_RX1
+    isr_empty,                     // CAN2_SCE
+    isr_empty,                     // OTG_FS
+    isr_empty,                     // DMA2_Stream5
+    isr_empty,                     // DMA2_Stream6
+    isr_empty,                     // DMA2_Stream7
+    isr_empty,                     // USART6
+    isr_empty,                     // I2C3_EV
+    isr_empty,                     // I2C3_ER
+    isr_empty,                     // OTG_HS_EP1_OUT
+    isr_empty,                     // OTG_HS_EP1_IN
+    isr_empty,                     //  OTG_HS_WKUP
+    isr_empty,                     // OTG_HS
+    isr_empty,                     //  DCMI
+    isr_empty,                     // CRYP
+    isr_empty,                     // HASH_RNG
+    isr_empty,                     // FPU
 };
 
 /*
