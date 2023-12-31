@@ -4,6 +4,7 @@
 #include "system.h"
 #include "systick.h"
 #include "gpios.h"
+#include "analog.h"
 
 static int bss_variable;
 static int initialized_variable = 31;
@@ -40,6 +41,11 @@ void main(void)
     unsigned int ticks = millis();
     unsigned int debounce = 0;
 
+    // ADC
+    gpio_dt_spec adc_pin = {PORT_A, 5, GPIO_ANALOG};
+    adc_init(&adc_pin);
+    int adc_value = 0;
+
     while (1)
     {
         // char *c = (char *)malloc(10);
@@ -52,6 +58,7 @@ void main(void)
         {
             gpio_toggle(&led);
             ticks = millis();
+            adc_value = adc_read(&adc_pin);
         }
 
         if (gpio_value(&button) && (millis() - debounce) > 500)

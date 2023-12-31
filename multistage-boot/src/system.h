@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+/*******RCC*******/
+#define RCC_BASE (0x40023800)
+
 /* Assembly helpers */
 #define DMB() __asm__ volatile("dmb");
 #define WFI() __asm__ volatile("wfi");

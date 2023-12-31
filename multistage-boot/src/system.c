@@ -8,7 +8,6 @@
 #define FLASH_ACR_EN_DATA_CACHE (1 << 10)
 
 /*******RCC*******/
-#define RCC_BASE (0x40023800)
 #define RCC_CR (*(volatile uint32_t *)(RCC_BASE + 0x00))
 #define RCC_PLLCFGR (*(volatile uint32_t *)(RCC_BASE + 0x04))
 #define RCC_CFGR (*(volatile uint32_t *)(RCC_BASE + 0x08))
