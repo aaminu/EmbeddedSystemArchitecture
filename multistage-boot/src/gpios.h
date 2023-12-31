@@ -33,19 +33,19 @@ typedef enum
     OPEN_DRAIN
 } gpio_otype_t;
 
-typedef struct
-{
-    gpio_port_t port;
-    uint8_t pin_number;
-    gpio_mode_t mode;
-} gpio_dt_spec;
-
 typedef enum
 {
     FALLING_EDGE = 1,
     RISING_EDGE,
     FALLING_OR_RISING_EDGE
 } gpio_trigger_t;
+
+typedef struct
+{
+    gpio_port_t port;
+    uint8_t pin_number;
+    gpio_mode_t mode;
+} gpio_dt_spec;
 
 typedef void (*gpio_callback_t)(void);
 

@@ -147,13 +147,13 @@ void adc_init(gpio_dt_spec *pin_spec)
     {
         // clear
         (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR2)) &= ~(0x07 << (channel * 3));
-        (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR2)) |= ~(ADC_SMPR_480_CYCLE << (channel * 3));
+        (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR2)) |= (ADC_SMPR_480_CYCLE << (channel * 3));
     }
     else
     {
         // clear
         (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR1)) &= ~(0x07 << ((channel - 10) * 3));
-        (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR1)) |= ~(ADC_SMPR_480_CYCLE << ((channel - 10) * 3));
+        (*(volatile uint32_t *)(ADC1_BASE + ADC_SMPR1)) |= (ADC_SMPR_480_CYCLE << ((channel - 10) * 3));
     }
 
     // Enable ADC
@@ -165,7 +165,7 @@ int adc_read(gpio_dt_spec *pin_spec)
     // Check if Pin is suitable for ADC
     int channel = adc_channel(pin_spec);
     if (channel < 0)
-        return 0;
+        return -1;
 
     // Disable ADC
     (*(volatile uint32_t *)(ADC1_BASE + ADC_CR2)) &= ~(ADC_CR2_ADON);
@@ -192,4 +192,14 @@ int adc_read(gpio_dt_spec *pin_spec)
     }
 
     return (int)(*(volatile uint32_t *)(ADC1_BASE + ADC_DR));
+}
+
+double adc_read_volt(gpio_dt_spec *pin_spec)
+{
+    int value = adc_read(pin_spec);
+
+    if (value < 0)
+        return -1.0;
+
+    return (3.3 * value) / (4095.0);
 }
