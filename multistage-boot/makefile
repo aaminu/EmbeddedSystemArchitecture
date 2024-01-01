@@ -6,7 +6,7 @@ OBJCOPY:=$(CROSS_COMPILE)objcopy
 GDB:=$(CROSS_COMPILE)gdb
 
 # Compiler and Linker Files
-CFLAGS:=-mthumb -mcpu=cortex-m3 -g -ggdb -Wall -Wno-main -Wstack-usage=200 -ffreestanding -Wno-unused -DOWN_MALLOC #-DSTACK_PAINTING
+CFLAGS:=-mthumb -mcpu=cortex-m3 -g -ggdb -Wall -Wno-main -Wstack-usage=200 -ffreestanding -Wno-unused -DOWN_MALLOC -DFPU_USE #-DSTACK_PAINTING
 LDFLAGS:=-gc-sections -nostdlib 
 
 # Target executable
