@@ -6,8 +6,8 @@ OBJCOPY:=$(CROSS_COMPILE)objcopy
 GDB:=$(CROSS_COMPILE)gdb
 
 # Compiler and Linker Files
-CFLAGS:=-mthumb -mcpu=cortex-m3 -g -ggdb -Wall -Wno-main -Wstack-usage=200 -ffreestanding -Wno-unused -DOWN_MALLOC -DFPU_USE #-DSTACK_PAINTING
-LDFLAGS:=-gc-sections -nostdlib 
+CFLAGS:=-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -ggdb -Wall -Wno-main -Wstack-usage=200 -ffreestanding -Wno-unused -DOWN_MALLOC -DFPU_USE #-DSTACK_PAINTING
+LDFLAGS:=-Wl,--gc-sections -nostartfiles -lc -lm 
 
 # Target executable
 TARGET_EXEC:=image.bin
@@ -65,12 +65,12 @@ $(BUILD_DIR)/$(APP).bin: $(BUILD_DIR)/$(APP).elf
 # Build ElF Files
 $(BUILD_DIR)/$(BOOTLOADER).elf: $(firstword $(sort $(OBJS))) $(BOOTLOADER).ld
 	@mkdir -p $(dir $@)
-	$(LD) $(LDFLAGS)  $(<) -o $(@)  -Map $(BUILD_DIR)/$(BOOTLOADER).map -T $(lastword $(^))
+	$(CC) $(<) -o $(@)  -Wl,-Map $(BUILD_DIR)/$(BOOTLOADER).map -T $(lastword $(^)) $(LDFLAGS)
 
 
 $(BUILD_DIR)/$(APP).elf: $(sort $(OBJS)) $(APP).ld
 	@mkdir -p $(dir $@)
-	$(LD) $(LDFLAGS)  $(wordlist 2, $(words $(OBJS)), $(^)) -o $(@)  -Map $(BUILD_DIR)/$(APP).map -T $(lastword $(^))
+	$(CC) $(wordlist 2, $(words $(OBJS)), $(^)) -o $(@)  -Wl,-Map $(BUILD_DIR)/$(APP).map -T $(lastword $(^)) $(LDFLAGS)
 
 
 # Compile C source files to object files

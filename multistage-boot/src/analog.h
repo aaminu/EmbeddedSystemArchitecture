@@ -62,16 +62,16 @@ void adc_init(gpio_dt_spec *pin_spec);
  */
 int adc_read(gpio_dt_spec *pin_spec);
 
-// /**
-//  * @brief Reads and returns the volatage level on the pin
-//  * @param pin_spec gpio_dt_spec pointer to gpio config struct containing
-//  * port name, pin number and mode.
-//  *
-//  * @retval 0 <= x <= 3.30v
-//  * @retval < 0 for Error
-//  */
-// float adc_read_volt(gpio_dt_spec *pin_spec);
+/**
+ * @brief Reads and returns the volatage level on the pin
+ * @param pin_spec gpio_dt_spec pointer to gpio config struct containing
+ * port name, pin number and mode.
+ *
+ * @retval 0 <= x <= 3.30v
+ * @retval < 0 for Error
+ */
+float adc_read_volt(gpio_dt_spec *pin_spec);
 
-// float adc_temperature(void);
+float adc_temperature(void);
 
 #endif /*ANALOG_H_*/

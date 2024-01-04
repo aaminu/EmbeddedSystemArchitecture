@@ -326,48 +326,48 @@ int adc_read(gpio_dt_spec *pin_spec)
     return adc_singleconv_read(ADC1, channel);
 }
 
-// float adc_read_volt(gpio_dt_spec *pin_spec)
-// {
-//     int value = adc_read(pin_spec);
+float adc_read_volt(gpio_dt_spec *pin_spec)
+{
+    int value = adc_read(pin_spec);
 
-//     if (value < 0)
-//         return -1.0;
+    if (value < 0)
+        return -1.0;
 
-//     return (2.79 * value) / (4095.0);
-// }
+    return (2.79 * value) / (4095.0);
+}
 
-// float adc_temperature(void)
-// {
+float adc_temperature(void)
+{
 
-//     // check and Enable ADC CLK if required
-//     adc_controller_clk_en(ADC1);
+    // check and Enable ADC CLK if required
+    adc_controller_clk_en(ADC1);
 
-//     // Disable ADC
-//     adc_reg_switch(ADC1, DISABLE);
+    // Disable ADC
+    adc_reg_switch(ADC1, DISABLE);
 
-//     // Set the Clock Prescaler
-//     set_adc_prescaler(ADC_PCLK_DIV2);
+    // Set the Clock Prescaler
+    set_adc_prescaler(ADC_PCLK_DIV2);
 
-//     // Disable Scan Mode
-//     adc_mode_set(ADC1, ADC_SCAN_MODE, DISABLE);
+    // Disable Scan Mode
+    adc_mode_set(ADC1, ADC_SCAN_MODE, DISABLE);
 
-//     // Disable Continous Mode
-//     adc_mode_set(ADC1, ADC_SINGLE_MODE, ENABLE);
+    // Disable Continous Mode
+    adc_mode_set(ADC1, ADC_SINGLE_MODE, ENABLE);
 
-//     // Sampling Frequency, Temp Sensor is on ADC_IN16
-//     adc_sampletime_set(ADC1, ADC_SAMPLETIME_480CYCLES, TEMPERATURE_CHANNEL);
+    // Sampling Frequency, Temp Sensor is on ADC_IN16
+    adc_sampletime_set(ADC1, ADC_SAMPLETIME_480CYCLES, TEMPERATURE_CHANNEL);
 
-//     // Enable ADC_CCR TSVREFE
-//     ADC_CCR |= ADC_CCR_TSVREFE;
+    // Enable ADC_CCR TSVREFE
+    ADC_CCR |= ADC_CCR_TSVREFE;
 
-//     // Enable ADC
-//     adc_reg_switch(ADC1, ENABLE);
+    // Enable ADC
+    adc_reg_switch(ADC1, ENABLE);
 
-//     int value = adc_singleconv_read(ADC1, TEMPERATURE_CHANNEL);
-//     if (value == -ANALOG_VAL_ERROR)
-//         return -TEMP_VAL_ERROR;
+    int value = adc_singleconv_read(ADC1, TEMPERATURE_CHANNEL);
+    if (value == -ANALOG_VAL_ERROR)
+        return -TEMP_VAL_ERROR;
 
-//     double v_sense = (2.79 * value) / (4095.0);
+    double v_sense = (2.79 * value) / (4095.0);
 
-//     return ((v_sense - 0.76) * 100) / (2.5) + 25;
-// }
+    return ((v_sense - 0.76) * 100) / (2.5) + 25;
+}
