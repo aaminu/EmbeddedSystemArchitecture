@@ -253,13 +253,13 @@ static int adc_singleconv_read(adc_controller_t adc_controller, uint8_t channel)
         return -1;
 
     // Disable ADC
-    adc_reg_switch(ADC1, DISABLE);
+    adc_reg_switch(adc_controller, DISABLE);
 
     // Set Channel to SQR_x
     (*(volatile uint32_t *)(controller_base + ADC_SQR3)) |= channel;
 
     // Enable ADC
-    adc_reg_switch(ADC1, ENABLE);
+    adc_reg_switch(adc_controller, ENABLE);
 
     // Start Conversion
     (*(volatile uint32_t *)(controller_base + ADC_CR2)) |= ADC_CR2_SWSTART;
@@ -292,28 +292,28 @@ void adc_init(gpio_dt_spec *pin_spec)
         return;
 
     // check and Enable ADC CLK if required
-    adc_controller_clk_en(ADC1);
+    adc_controller_clk_en(ADC2);
 
     // Initial GPIO as ADC
     gpio_init(pin_spec);
 
     // Disable ADC
-    adc_reg_switch(ADC1, DISABLE);
+    adc_reg_switch(ADC2, DISABLE);
 
     // Set the Clock Prescaler
     set_adc_prescaler(ADC_PCLK_DIV2);
 
     // Disable Scan Mode
-    adc_mode_set(ADC1, ADC_SCAN_MODE, DISABLE);
+    adc_mode_set(ADC2, ADC_SCAN_MODE, DISABLE);
 
     // Disable Continous Mode
-    adc_mode_set(ADC1, ADC_SINGLE_MODE, ENABLE);
+    adc_mode_set(ADC2, ADC_SINGLE_MODE, ENABLE);
 
     // Sampling Frequency
-    adc_sampletime_set(ADC1, ADC_SAMPLETIME_480CYCLES, channel);
+    adc_sampletime_set(ADC2, ADC_SAMPLETIME_480CYCLES, channel);
 
     // Enable ADC
-    adc_reg_switch(ADC1, ENABLE);
+    adc_reg_switch(ADC2, ENABLE);
 }
 
 int adc_read(gpio_dt_spec *pin_spec)
@@ -323,7 +323,7 @@ int adc_read(gpio_dt_spec *pin_spec)
     if (channel < 0)
         return -ANALOG_VAL_ERROR;
 
-    return adc_singleconv_read(ADC1, channel);
+    return adc_singleconv_read(ADC2, channel);
 }
 
 float adc_read_volt(gpio_dt_spec *pin_spec)
@@ -333,7 +333,7 @@ float adc_read_volt(gpio_dt_spec *pin_spec)
     if (value < 0)
         return -1.0;
 
-    return (2.79 * value) / (4095.0);
+    return (2.79f * value) / (4095.0f);
 }
 
 float adc_temperature(void)
@@ -367,7 +367,7 @@ float adc_temperature(void)
     if (value == -ANALOG_VAL_ERROR)
         return -TEMP_VAL_ERROR;
 
-    double v_sense = (2.79 * value) / (4095.0);
+    float v_sense = (2.79f * value) / (4095.0f);
 
-    return ((v_sense - 0.76) * 100) / (2.5) + 25;
+    return ((v_sense - 0.76f) * 100.0f) / (2.5f) + 25.0f;
 }

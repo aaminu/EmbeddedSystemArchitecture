@@ -49,6 +49,9 @@
 
 #define RCC_CR_VOS_EN (1 << 14)
 
+/******FPU*******/
+#define FPU_CPACR (*(volatile uint32_t *)(0xE000ED88))
+
 /*Export NVIC Inline*/
 extern inline void nvic_disable_irq(uint8_t n);
 extern inline void nvic_enable_irq(uint8_t n);
@@ -139,4 +142,11 @@ void sys_clock_config(void)
 {
     set_flash_waitstates();
     clock_config();
+}
+
+void enable_fpu(void)
+{
+    FPU_CPACR |= (0x0F << 20);
+    DSB();
+    ISB();
 }

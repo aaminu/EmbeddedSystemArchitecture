@@ -9,7 +9,9 @@
 static int bss_variable;
 static int initialized_variable = 31;
 
-// extern int mpu_enable(void);
+extern int mpu_enable(void);
+void sys_init(void);
+void toggle_led5(void);
 
 // GPIOS
 gpio_dt_spec led = U_LED3;
@@ -17,13 +19,10 @@ gpio_dt_spec led1 = U_LED4;
 gpio_dt_spec led2 = U_LED5;
 gpio_dt_spec button = U_BUTN;
 
-void toggle_led5(void);
-
 void main(void)
 {
-    // mpu_enable();
-    sys_clock_config();
-    systick_enable();
+    // Initialize System
+    sys_init();
 
     /*Setup GPIOS*/
     gpio_dt_spec input = {PORT_C, 11, GPIO_INPUT};
@@ -44,7 +43,10 @@ void main(void)
     // ADC
     gpio_dt_spec adc_pin = {PORT_A, 5, GPIO_ANALOG};
     adc_init(&adc_pin);
-    int adc_value = 0;
+    int adc_value = adc_read(&adc_pin);
+    int adc_volt = adc_read_volt(&adc_pin);
+    int temperature = adc_temperature();
+    float a = (1.0 + 2.0) * 1.20f;
 
     while (1)
     {
@@ -72,4 +74,19 @@ void main(void)
 void toggle_led5(void)
 {
     gpio_toggle(&led2);
+}
+
+void sys_init(void)
+{
+
+    sys_clock_config();
+    systick_enable();
+
+#ifdef FPU_USE
+    enable_fpu();
+#endif
+
+#ifdef MPU_USE
+    mpu_enable();
+#endif
 }

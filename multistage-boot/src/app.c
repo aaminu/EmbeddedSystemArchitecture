@@ -58,12 +58,6 @@ void isr_reset(void)
     }
 #endif
 
-#ifdef FPU_USE
-
-    (*(volatile uint32_t *)(0xE000ED88)) |= ((0x03 << 10 * 2) | (0x03 << 11 * 2));
-
-#endif
-
     /*Run the main */
     main();
 }

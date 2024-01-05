@@ -9,6 +9,8 @@
 /* Assembly helpers */
 #define DMB() __asm__ volatile("dmb");
 #define WFI() __asm__ volatile("wfi");
+#define DSB() __asm__ volatile("dsb");
+#define ISB() __asm__ volatile("isb");
 
 /* System specific: PLL with 8 MHz external oscillator, CPU at 168MHz */
 #define CPU_FREQ (168000000)
@@ -100,4 +102,8 @@ inline void nvic_set_prio_irq(uint8_t irqn, uint8_t prio)
  */
 void sys_clock_config(void);
 
+/**
+ * @brief Enable the FPU
+ */
+void enable_fpu(void);
 #endif
