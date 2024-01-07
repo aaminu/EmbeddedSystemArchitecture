@@ -1,7 +1,11 @@
-## Makefile
+## About
+
+
+## **Usage**
+### **Makefile**
 Each folder has its own makefiles. One problem I encountered initially was my makefile not properly formatted, this can be checked by issuing `cat -e -t -v <makefile_name>`. The output will have $ denoting line endings and ^I indicating tab.
 
-## Debuging Using OpenOCD
+### **Debuging Using OpenOCD**
 Debugging is done with the help of OpenOCD. Two scripts are provided:
 - [flash.cfg](./multistage-boot/flash.cfg)
 - [debug.cfg](./multistage-boot/debug.cfg)
@@ -9,30 +13,32 @@ Debugging is done with the help of OpenOCD. Two scripts are provided:
 The scripts above can be used in different scenarios listed above:
 1. Changes to source files would required rebuilding and flashing the target. The script from above have been incorporated into the [makefile](./multistage-boot/makefile) and a typical process would look like.
     ```bash
-    cd <directory>
+    cd ESA/multistage-boot/examples/<directory>
     make clean
     make
+    # Make sure your device is connected at this point
     make flash
     make debug
     ```
 2. No changes but a new board to be flashed, the process would look like 
     ```bash
-    cd <directory>
+    cd ESA/multistage-boot/examples/<directory>
+    # Make sure your device is connected at this point
     make flash
     make debug
     ```
     or 
     ```bash
-    cd <directory>
+    cd ESA/multistage-boot/
     openocd -f flash.cfg
     openocd -f debug.cfg
     ```
 3. Simple debugging
     ```bash
-    cd <directory>
+    cd ESA/multistage-boot/
     openocd -f debug.cfg
     ```
-Once the debug server is started and listening for connections on the tcp port, use the arm-none-eabi-gdb to connect. Since it is a multistage boot system, the symbol files are loaded individual:
+Once the debug server is started and listening for connections on the tcp port, use the arm-none-eabi-gdb to connect. Since it is a multistage boot system, the symbol files for both bootloader and application are loaded individual:
 ```bash
 arm-none-eabi-gdb -q /home/aaminu/ESA/multistage-boot/build/_bootloader.elf
 (gdb) target extended-remote localhost:3333
