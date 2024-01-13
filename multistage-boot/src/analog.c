@@ -86,11 +86,12 @@
 #define ANALOG_VAL_ERROR (1)
 #define TEMP_VAL_ERROR (50.0)
 
-/**************Statics**************************/
-
 #define IS_ADC1_CLK_EN (0x01)
 #define IS_ADC2_CLK_EN (0x02)
 #define IS_ADC3_CLK_EN (0x04)
+
+/**************Statics**************************/
+
 static uint8_t is_adc_controller_clk_en = 0; // Keep track of ADC controller clock enabled, 0x01(ADC1), 0x02(ADC2), 0x40(ADC3)
 
 /**
