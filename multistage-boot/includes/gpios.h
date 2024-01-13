@@ -35,6 +35,14 @@ typedef enum
 
 typedef enum
 {
+    LOW_SPEED,
+    MEDIUM_SPEED,
+    HIGH_SPEED,
+    VERY_HIGH_SPEED
+} gpio_ospeed_t;
+
+typedef enum
+{
     FALLING_EDGE = 1,
     RISING_EDGE,
     FALLING_OR_RISING_EDGE
@@ -70,6 +78,14 @@ void gpio_init(gpio_dt_spec *pin_spec);
  * @param pupd enum gpio_pupd_t (NONE, PULL_UP, PULL_DOWN)
  */
 void gpio_set_pupd(gpio_dt_spec *pin_spec, gpio_pupd_t pupd);
+
+/**
+ * @brief Set the speed for the output pin,
+ * @param pin_spec gpio_dt_spec pointer to gpio config struct containing
+ * port name, pin number and mode.
+ * @param speed enum gpio_ospeed_t type (LOW_SPEED, MEDIUM_SPEED, HIGH_SPEED, VERY_HIGH_SPEED)
+ */
+void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed);
 
 /**
  * @brief Set the driver for the output pin, default is PUSH_PULL

@@ -168,10 +168,26 @@ void gpio_set_otype(gpio_dt_spec *pin_spec, gpio_otype_t otype)
         return;
 
     volatile uint32_t otype_reg = (*(volatile uint32_t *)(port_base + OTYPER));
-    otype_reg &= ~(0x03 << pin_spec->pin_number);
+    otype_reg &= ~(0x01 << pin_spec->pin_number);
     otype_reg |= ((uint8_t)otype << pin_spec->pin_number);
 
     *(volatile uint32_t *)(port_base + OTYPER) |= otype_reg;
+}
+
+void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed)
+{
+    if (pin_spec->mode != GPIO_OUTPUT)
+        return;
+
+    uint32_t port_base = port_base_selector(pin_spec);
+    if (!port_base)
+        return;
+
+    volatile uint32_t ospeed_reg = (*(volatile uint32_t *)(port_base + OSPEEDR));
+    ospeed_reg &= ~(0x03 << pin_spec->pin_number * 2);
+    ospeed_reg |= ((uint8_t)speed << pin_spec->pin_number * 2);
+
+    *(volatile uint32_t *)(port_base + OTYPER) |= ospeed_reg;
 }
 
 void gpio_set(gpio_dt_spec *pin_spec, int value)
