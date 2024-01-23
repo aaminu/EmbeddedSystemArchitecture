@@ -14,6 +14,8 @@ extern uint32_t _START_HEAP;
 static uint32_t sp;
 
 extern void main(void);
+
+// Interrupt Service Routine
 extern void _isr_exti0(void);
 extern void _isr_exti1(void);
 extern void _isr_exti2(void);
@@ -21,6 +23,10 @@ extern void _isr_exti3(void);
 extern void _isr_exti4(void);
 extern void _isr_exti9_5(void);
 extern void _isr_exti15_10(void);
+extern void _isr_tim2(void);
+extern void _isr_tim3(void);
+extern void _isr_tim4(void);
+extern void _isr_tim5(void);
 
 void isr_reset(void)
 {
@@ -118,9 +124,9 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     isr_empty,                     // TIM1_UP_TIM10
     isr_empty,                     // TIM1_TRG_COM_TIM11
     isr_empty,                     // TIM1_CC
-    isr_empty,                     // TIM2
-    isr_empty,                     // TIM3
-    isr_empty,                     // TIM4
+    _isr_tim2,                     // TIM2
+    _isr_tim3,                     // TIM3
+    _isr_tim4,                     // TIM4
     isr_empty,                     // I2C1_EV
     isr_empty,                     // I2C1_ER
     isr_empty,                     // I2C2_EV
@@ -140,7 +146,7 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     isr_empty,                     // DMA1_Stream7
     isr_empty,                     // FSMC
     isr_empty,                     // SDIO
-    isr_empty,                     // TIM5
+    _isr_tim5,                     // TIM5
     isr_empty,                     // SPI3
     isr_empty,                     // UART4
     isr_empty,                     // UART5
@@ -166,9 +172,9 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     isr_empty,                     // I2C3_ER
     isr_empty,                     // OTG_HS_EP1_OUT
     isr_empty,                     // OTG_HS_EP1_IN
-    isr_empty,                     //  OTG_HS_WKUP
+    isr_empty,                     // OTG_HS_WKUP
     isr_empty,                     // OTG_HS
-    isr_empty,                     //  DCMI
+    isr_empty,                     // DCMI
     isr_empty,                     // CRYP
     isr_empty,                     // HASH_RNG
     isr_empty,                     // FPU
