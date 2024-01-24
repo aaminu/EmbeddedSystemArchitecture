@@ -94,12 +94,16 @@
 
 /***********Flags***********/
 #define TIMx_CR1_CEN (1 << 0)
+#define TIMx_CR1_UDIS (1 << 1)
+#define TIMx_CR1_URS (1 << 1)
 #define TIMx_CR1_OPM (1 << 3)
+#define TIMx_CR1_DIR (1 << 4)
 #define TIMx_CR1_ARPE (1 << 7)
 #define TIMx_DIER_UIE (1 << 0)
 #define TIMx_DIER_TIE (1 << 6)
 #define TIMx_DIER_UDE (1 << 8)
 #define TIMx_SR_UIF (1 << 0)
+#define TIMx_EGR_UG (1 << 0)
 
 /******Static. Don't modify********/
 static void empty_callback(void) {} // Space holder
@@ -120,31 +124,39 @@ int timer_init(timer_dt_spec *timer_spec, timer_callback_t callback)
     if ((timer_spec->timer == TIMER_3 || timer_spec->timer == TIMER_4) && (timer_spec->interval_ms > 60000))
         return -1;
 
+    // Get IRQN
+    int16_t irqn = SELECT_TIMER_IRQN(timer_spec->timer);
+    if (irqn < 0)
+        return -1;
+
     // Select a prescaler that allow Reload value tick per ms
     uint32_t prescaler = (APB1_FREQ / 1000) - 1;
 
     // Enable RCC CLOCK
     RCC_APB1ENR |= SELECT_TIMER_EN1(timer_spec->timer);
 
-    // Enable the IRQN
-    int16_t irqn = SELECT_TIMER_IRQN(timer_spec->timer);
-    if (irqn < 0)
-        return -1;
-    nvic_enable_irq(irqn);
-    timer_register_callback(timer_spec, callback);
-
-    // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE and CEN
+    // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = timer_spec->interval_ms;
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = timer_spec->interval_ms - 1;
     (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler;
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_DIER)) |= TIMx_DIER_UIE;
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_ARPE;
 
     if (timer_spec->mode == ONESHOT)
     {
         (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_OPM;
     }
 
+    // Generate Update Event
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_EGR)) |= TIMx_EGR_UG;
+
+    // Clear Update Flag
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_SR)) &= ~(TIMx_SR_UIF);
+
+    // Set UIE & Enable Interrupt
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_DIER)) |= TIMx_DIER_UIE;
+    timer_register_callback(timer_spec, callback);
+    nvic_enable_irq(irqn);
+
+    // Enable CEN
     (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_CEN;
 
     return 0;

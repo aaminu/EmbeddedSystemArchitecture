@@ -27,19 +27,19 @@ void main(void)
     timer_dt_spec timer_1 = {
         .timer = TIMER_2,
         .mode = ONESHOT,
-        .interval_ms = (5 * 60 * 1000) // Five Minutes
+        .interval_ms = 120000 // Two Minutes
     };
 
     timer_dt_spec timer_2 = {
         .timer = TIMER_3,
         .mode = CONTINOUS,
-        .interval_ms = 700 // 700ms
+        .interval_ms = 500 // 500ms
     };
 
     timer_dt_spec timer_3 = {
         .timer = TIMER_4,
         .mode = CONTINOUS,
-        .interval_ms = 1000 // 1s
+        .interval_ms = 2000 // 2s
     };
 
     /*Init GPIOS*/
