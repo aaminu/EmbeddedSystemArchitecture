@@ -116,12 +116,15 @@ static void (*volatile callback_array[4])(void) = {
 };
 
 /*******GLOBALS*******/
-int timer_init(timer_dt_spec *timer_spec, timer_callback_t callback)
+int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms, timer_callback_t callback)
 {
-    if (timer_spec->interval_ms == 0)
+    if (interval_ms == 0)
         return -1;
 
-    if ((timer_spec->timer == TIMER_3 || timer_spec->timer == TIMER_4) && (timer_spec->interval_ms > 60000))
+    if ((timer_spec->timer == TIMER_3 || timer_spec->timer == TIMER_4) && (interval_ms > T_SEC(30)))
+        return -1;
+
+    if ((timer_spec->timer == TIMER_2 || timer_spec->timer == TIMER_5) && (interval_ms > T_HRS(24)))
         return -1;
 
     // Get IRQN
@@ -130,14 +133,14 @@ int timer_init(timer_dt_spec *timer_spec, timer_callback_t callback)
         return -1;
 
     // Select a prescaler that allow Reload value tick per ms
-    uint32_t prescaler = (APB1_FREQ / 1000) - 1;
+    uint32_t prescaler = (APB1_FREQ / 1000);
 
     // Enable RCC CLOCK
     RCC_APB1ENR |= SELECT_TIMER_EN1(timer_spec->timer);
 
     // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = timer_spec->interval_ms - 1;
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = (interval_ms * 2) - 1;
     (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler;
 
     if (timer_spec->mode == ONESHOT)
@@ -162,19 +165,19 @@ int timer_init(timer_dt_spec *timer_spec, timer_callback_t callback)
     return 0;
 }
 
-void timer_register_callback(timer_dt_spec *timer_spec, timer_callback_t callback)
+void timer_register_callback(const timer_dt_spec *timer_spec, timer_callback_t callback)
 {
     // Append the callback to array container
     callback_array[((int)timer_spec->timer) - 2] = callback;
 }
 
-void timer_unregister_callback(timer_dt_spec *timer_spec)
+void timer_unregister_callback(const timer_dt_spec *timer_spec)
 {
     // Append the callback to array container
     callback_array[((int)timer_spec->timer) - 2] = empty_callback;
 }
 
-int timer_duration_change(timer_dt_spec *timer_spec, uint32_t interval_ms)
+int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
 {
     if (interval_ms == 0)
         return -1;
@@ -185,9 +188,6 @@ int timer_duration_change(timer_dt_spec *timer_spec, uint32_t interval_ms)
     // Update ARR reg
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
     (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = interval_ms;
-
-    // Update the timer
-    timer_spec->interval_ms = interval_ms;
 
     return 0;
 }

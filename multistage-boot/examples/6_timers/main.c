@@ -24,22 +24,19 @@ void main(void)
     sys_init();
 
     // define timers to use
-    timer_dt_spec timer_1 = {
+    const timer_dt_spec timer_1 = {
         .timer = TIMER_2,
         .mode = ONESHOT,
-        .interval_ms = 120000 // Two Minutes
     };
 
-    timer_dt_spec timer_2 = {
+    const timer_dt_spec timer_2 = {
         .timer = TIMER_3,
         .mode = CONTINOUS,
-        .interval_ms = 500 // 500ms
     };
 
-    timer_dt_spec timer_3 = {
+    const timer_dt_spec timer_3 = {
         .timer = TIMER_4,
         .mode = CONTINOUS,
-        .interval_ms = 2000 // 2s
     };
 
     /*Init GPIOS*/
@@ -48,14 +45,13 @@ void main(void)
     gpio_init(&led5);
 
     /*Set values to the gpios*/
-    gpio_set(&led3, 0);
+    gpio_set(&led3, 1);
     gpio_set(&led4, 0);
     gpio_set(&led4, 0);
-    unsigned int ticks = millis();
 
-    timer_init(&timer_1, toggle_led3_isr);
-    timer_init(&timer_2, toggle_led4_isr);
-    timer_init(&timer_3, toggle_led5_isr);
+    timer_init(&timer_1, T_MIN(3), toggle_led3_isr); // 3 Minutes
+    timer_init(&timer_2, 500, toggle_led4_isr);      // 500ms
+    timer_init(&timer_3, T_SEC(2), toggle_led5_isr); // 2s
 
     while (1)
     {

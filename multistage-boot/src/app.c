@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include "systick.h"
 
 /* Pointers to memory in RAM for different symbols */
 extern uint32_t _stored_data; // Load memory area on Flash
@@ -16,6 +15,7 @@ static uint32_t sp;
 extern void main(void);
 
 // Interrupt Service Routine
+extern void _systick_isr(void);
 extern void _isr_exti0(void);
 extern void _isr_exti1(void);
 extern void _isr_exti2(void);
@@ -95,7 +95,7 @@ __attribute__((section(".isr_vector"))) void (*const IV[])(void) = {
     isr_empty,                     // Debug Monitor event
     0,                             // REserved
     isr_empty,                     // PendSV call
-    systick_isr,                   // Systemtick
+    _systick_isr,                  // Systemtick
     isr_empty,                     // WWDG
     isr_empty,                     // PVD
     isr_empty,                     // TAMP_STAMP

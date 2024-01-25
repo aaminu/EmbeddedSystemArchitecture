@@ -29,7 +29,7 @@ void systick_disable()
     SYST_RVR = 0;
 }
 
-void systick_isr(void)
+void _systick_isr(void)
 {
     jiffies++;
 }
