@@ -54,8 +54,8 @@ void main(void)
     timer_init(&timer_3, T_SEC(30)); // 30s (Max)
 
     /*Register callbacks*/
-    timer_register_callback(&timer_1, toggle_led3_isr);
-    timer_register_callback(&timer_2, toggle_led4_isr);
+    timer_register_callback(&timer_1, toggle_led3_isr); // Turn of led3 after 3 mins aka OneShot
+    timer_register_callback(&timer_2, toggle_led4_isr); // Blink led4 every 500ms (1/2 sec)
 
     /* Start all the timers*/
     timer_start(&timer_1);
@@ -65,7 +65,7 @@ void main(void)
     unsigned int time_val = timer_get_counter(&timer_3);
     while (1)
     {
-        // Toggle led5 every one second
+        // Toggle led5 every one second using timer as a clock
         if ((timer_get_counter(&timer_3) - time_val) > 1000)
         {
             toggle_led5();
