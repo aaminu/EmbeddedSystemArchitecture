@@ -11,7 +11,7 @@ extern int mpu_enable(void);
 void sys_init(void);
 void toggle_led3_isr(void);
 void toggle_led4_isr(void);
-void toggle_led5_isr(void);
+void toggle_led5(void);
 
 // Define GPIOS, the Macros are gpios available on the board
 gpio_dt_spec led3 = U_LED3;
@@ -49,13 +49,32 @@ void main(void)
     gpio_set(&led4, 0);
     gpio_set(&led4, 0);
 
-    timer_init(&timer_1, T_MIN(3), toggle_led3_isr); // 3 Minutes
-    timer_init(&timer_2, 500, toggle_led4_isr);      // 500ms
-    timer_init(&timer_3, T_SEC(2), toggle_led5_isr); // 2s
+    timer_init(&timer_1, T_MIN(3));  // 3 Minutes
+    timer_init(&timer_2, 500);       // 500ms
+    timer_init(&timer_3, T_SEC(30)); // 30s (Max)
 
+    /*Register callbacks*/
+    timer_register_callback(&timer_1, toggle_led3_isr);
+    timer_register_callback(&timer_2, toggle_led4_isr);
+
+    /* Start all the timers*/
+    timer_start(&timer_1);
+    timer_start(&timer_2);
+    timer_start(&timer_3);
+
+    unsigned int time_val = timer_get_counter(&timer_3);
     while (1)
     {
-        WFI();
+        // Toggle led5 every one second
+        if ((timer_get_counter(&timer_3) - time_val) > 1000)
+        {
+            toggle_led5();
+            time_val = timer_get_counter(&timer_3);
+        }
+
+        // Induce a blocking delay for 50ms.
+        delay(50);
+        // WFI();
     }
 }
 
@@ -69,7 +88,7 @@ void toggle_led4_isr(void)
     gpio_toggle(&led4);
 }
 
-void toggle_led5_isr(void)
+void toggle_led5(void)
 {
     gpio_toggle(&led5);
 }

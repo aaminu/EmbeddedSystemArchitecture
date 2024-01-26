@@ -3,6 +3,8 @@
 
 ## **Usage**
 ### **Makefile**
+
+### **Makefile**
 Each folder has its own makefiles. One problem I encountered initially was my makefile not properly formatted, this can be checked by issuing `cat -e -t -v <makefile_name>`. The output will have $ denoting line endings and ^I indicating tab.
 
 ### **Debuging Using OpenOCD**

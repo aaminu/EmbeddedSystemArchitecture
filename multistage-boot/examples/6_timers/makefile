@@ -100,7 +100,7 @@ $(BUILD_DIR)/$(MAIN).o: $(MAIN).c
 
 #flash
 .PHONY: flash
-flash:
+flash: $(sort $(BINARY))
 	@openocd -f $(INSTALL_FILE)
 
 #flash

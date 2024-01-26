@@ -20,4 +20,12 @@ void systick_disable(void);
  */
 unsigned int millis(void);
 
+/**
+ * @brief Induce a blocking delay of in milliseconds.
+ *
+ * @param delay_ms - Blocking delay in milliseconds
+ *
+ */
+void delay(uint32_t delay_ms);
+
 #endif

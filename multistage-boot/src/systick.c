@@ -38,3 +38,10 @@ unsigned int millis()
 {
     return (unsigned int)jiffies;
 }
+
+void delay(uint32_t delay_ms)
+{
+    unsigned int checkpoint = millis();
+    while ((millis() - checkpoint) < delay_ms)
+        ;
+}

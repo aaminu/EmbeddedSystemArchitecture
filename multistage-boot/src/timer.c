@@ -116,7 +116,7 @@ static void (*volatile callback_array[4])(void) = {
 };
 
 /*******GLOBALS*******/
-int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms, timer_callback_t callback)
+int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
 {
     if (interval_ms == 0)
         return -1;
@@ -127,13 +127,8 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms, timer_call
     if ((timer_spec->timer == TIMER_2 || timer_spec->timer == TIMER_5) && (interval_ms > T_HRS(24)))
         return -1;
 
-    // Get IRQN
-    int16_t irqn = SELECT_TIMER_IRQN(timer_spec->timer);
-    if (irqn < 0)
-        return -1;
-
     // Select a prescaler that allow Reload value tick per ms
-    uint32_t prescaler = (APB1_FREQ / 1000);
+    uint32_t prescaler = (APB1_FREQ / 1000) - 1;
 
     // Enable RCC CLOCK
     RCC_APB1ENR |= SELECT_TIMER_EN1(timer_spec->timer);
@@ -154,21 +149,33 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms, timer_call
     // Clear Update Flag
     (*(volatile uint32_t *)(timer_reg_base + TIMx_SR)) &= ~(TIMx_SR_UIF);
 
-    // Set UIE & Enable Interrupt
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_DIER)) |= TIMx_DIER_UIE;
-    timer_register_callback(timer_spec, callback);
-    nvic_enable_irq(irqn);
+    return 0;
+}
+
+void timer_start(const timer_dt_spec *timer_spec)
+{
+
+    // Clear S
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
 
     // Enable CEN
     (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_CEN;
-
-    return 0;
 }
 
 void timer_register_callback(const timer_dt_spec *timer_spec, timer_callback_t callback)
 {
     // Append the callback to array container
     callback_array[((int)timer_spec->timer) - 2] = callback;
+
+    // Get IRQN
+    int16_t irqn = SELECT_TIMER_IRQN(timer_spec->timer);
+    if (irqn < 0)
+        return;
+    nvic_enable_irq(irqn);
+
+    // Set UIE & Enable Interrupt
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_DIER)) |= TIMx_DIER_UIE;
 }
 
 void timer_unregister_callback(const timer_dt_spec *timer_spec)
@@ -190,6 +197,14 @@ int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
     (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = interval_ms;
 
     return 0;
+}
+
+unsigned int timer_get_counter(const timer_dt_spec *timer_spec)
+{
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+
+    return ((*(volatile uint32_t *)(timer_reg_base + TIMx_CNT)) + 1) / 2;
 }
 
 /*Interrupt Service Routine for TIM2 */
