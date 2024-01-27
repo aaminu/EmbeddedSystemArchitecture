@@ -122,16 +122,4 @@ int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
  */
 unsigned int timer_get_counter(const timer_dt_spec *timer_spec);
 
-/**
- * @brief Induce a blocking delay of in milliseconds. Note, delay must not be more than the interval passed at initilization
- * i.e timer_init(&timer_x, interval_in_ms). Take note that the timer rollsover if it is used to measure passing time.
- *
- * @note Consider using millis() provider by in systick.h for much longer duration
- *
- * @param timer_spec - Container for timer configuration
- * @param delay_ms - Blocking delay in milliseconds
- *
- *
- */
-
 #endif

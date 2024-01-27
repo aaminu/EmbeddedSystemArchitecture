@@ -13,7 +13,7 @@
 int wdt_init(uint32_t ms);
 
 /**
- * @brief Reload
+ * @brief Feed the dog aka Reload
  *
  */
 void wdt_feed(void);
