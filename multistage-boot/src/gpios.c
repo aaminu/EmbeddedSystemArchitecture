@@ -187,7 +187,7 @@ void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed)
     ospeed_reg &= ~(0x03 << pin_spec->pin_number * 2);
     ospeed_reg |= ((uint8_t)speed << pin_spec->pin_number * 2);
 
-    *(volatile uint32_t *)(port_base + OTYPER) |= ospeed_reg;
+    *(volatile uint32_t *)(port_base + OSPEEDR) |= ospeed_reg;
 }
 
 void gpio_set(gpio_dt_spec *pin_spec, int value)
