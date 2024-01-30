@@ -48,6 +48,26 @@ typedef enum
     FALLING_OR_RISING_EDGE
 } gpio_trigger_t;
 
+typedef enum
+{
+    AF0,  //(system)
+    AF1,  // (TIM1/TIM2)
+    AF2,  // (TIM3..5)
+    AF3,  // (TIM8..11)
+    AF4,  // (I2C1..3)
+    AF5,  // (SPI1/SPI2)
+    AF6,  // (SPI3)
+    AF7,  // (USART1..3)
+    AF8,  // (USART4..6)
+    AF9,  // (CAN1/CAN2, TIM12..14)
+    AF10, // (OTG_FS, OTG_HS)
+    AF11, // (ETH)
+    AF12, // (FSMC, SDIO, OTG_HS(1))
+    AF13, // (DCMI)
+    AF14,
+    AF15, // (EVENTOUT)
+} gpio_altfunct_t;
+
 typedef struct
 {
     gpio_port_t port;
@@ -94,6 +114,17 @@ void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed);
  * @param otype enum gpio_otype_t (PUSH_PULL, OPEN_DRAIN)
  */
 void gpio_set_otype(gpio_dt_spec *pin_spec, gpio_otype_t otype);
+
+/**
+ * @brief Set the alternate function of the pin, the mode should also be GPIO_ALT_FUNC
+ * @param pin_spec gpio_dt_spec pointer to gpio config struct containing
+ * port name, pin number and mode.
+ * @param altfun enum gpio_altfunct_t alternate function
+ *
+ * @note Using the alt function requires you knowing what you are doing. Please refer to the altfunction
+ * table of the board.
+ */
+void gpio_set_altfunc(gpio_dt_spec *pin_spec, gpio_altfunct_t altfun);
 
 /**
  * @brief Set the state of the PIN
