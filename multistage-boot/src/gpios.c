@@ -142,7 +142,7 @@ void gpio_init(gpio_dt_spec *pin_spec)
     mode_reg |= ((uint8_t)pin_spec->mode << (pin_spec->pin_number * 2));
 
     // update Reg
-    *(volatile uint32_t *)(port_base + MODER) |= mode_reg;
+    *(volatile uint32_t *)(port_base + MODER) = mode_reg;
 }
 
 void gpio_set_pupd(gpio_dt_spec *pin_spec, gpio_pupd_t pupd)
@@ -155,7 +155,7 @@ void gpio_set_pupd(gpio_dt_spec *pin_spec, gpio_pupd_t pupd)
     pupd_reg &= ~(0x03 << (pin_spec->pin_number * 2));
     pupd_reg |= ((uint8_t)pupd << (pin_spec->pin_number * 2));
 
-    *(volatile uint32_t *)(port_base + PUPDR) |= pupd_reg;
+    *(volatile uint32_t *)(port_base + PUPDR) = pupd_reg;
 }
 
 void gpio_set_otype(gpio_dt_spec *pin_spec, gpio_otype_t otype)
@@ -171,7 +171,7 @@ void gpio_set_otype(gpio_dt_spec *pin_spec, gpio_otype_t otype)
     otype_reg &= ~(0x01 << pin_spec->pin_number);
     otype_reg |= ((uint8_t)otype << pin_spec->pin_number);
 
-    *(volatile uint32_t *)(port_base + OTYPER) |= otype_reg;
+    *(volatile uint32_t *)(port_base + OTYPER) = otype_reg;
 }
 
 void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed)
@@ -184,10 +184,37 @@ void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed)
         return;
 
     volatile uint32_t ospeed_reg = (*(volatile uint32_t *)(port_base + OSPEEDR));
-    ospeed_reg &= ~(0x03 << pin_spec->pin_number * 2);
-    ospeed_reg |= ((uint8_t)speed << pin_spec->pin_number * 2);
+    ospeed_reg &= ~(0x03 << (pin_spec->pin_number * 2));
+    ospeed_reg |= ((uint8_t)speed << (pin_spec->pin_number * 2));
 
-    *(volatile uint32_t *)(port_base + OSPEEDR) |= ospeed_reg;
+    *(volatile uint32_t *)(port_base + OSPEEDR) = ospeed_reg;
+}
+
+void gpio_set_altfunc(gpio_dt_spec *pin_spec, gpio_altfunct_t altfun)
+{
+    if (pin_spec->mode != GPIO_ALT_FUNC)
+        return;
+
+    uint32_t port_base = port_base_selector(pin_spec);
+    if (!port_base)
+        return;
+
+    if (pin_spec->pin_number < 8)
+    {
+        volatile uint32_t afrlh_reg = (*(volatile uint32_t *)(port_base + AFRL));
+        afrlh_reg &= ~(0x0f << (pin_spec->pin_number * 4));
+        afrlh_reg |= ((uint8_t)altfun << (pin_spec->pin_number * 4));
+
+        *(volatile uint32_t *)(port_base + AFRL) = afrlh_reg;
+    }
+    else
+    {
+        volatile uint32_t afrlh_reg = (*(volatile uint32_t *)(port_base + AFRH));
+        afrlh_reg &= ~(0x0f << ((pin_spec->pin_number - 8) * 4));
+        afrlh_reg |= ((uint8_t)altfun << ((pin_spec->pin_number - 8) * 4));
+
+        *(volatile uint32_t *)(port_base + AFRH) = afrlh_reg;
+    }
 }
 
 void gpio_set(gpio_dt_spec *pin_spec, gpio_level_t pin_level)
@@ -199,17 +226,13 @@ void gpio_set(gpio_dt_spec *pin_spec, gpio_level_t pin_level)
     if (!port_base)
         return;
 
-    volatile uint32_t bsr_reg = (*(volatile uint32_t *)(port_base + BSRR));
-
     if (!(uint8_t)pin_level)
     {
-        bsr_reg |= 1 << (pin_spec->pin_number + 16);
-        *(volatile uint32_t *)(port_base + BSRR) |= bsr_reg;
+        (*(volatile uint32_t *)(port_base + BSRR)) |= 1 << (pin_spec->pin_number + 16);
         return;
     }
 
-    bsr_reg |= 1 << (pin_spec->pin_number);
-    *(volatile uint32_t *)(port_base + BSRR) |= bsr_reg;
+    *(volatile uint32_t *)(port_base + BSRR) |= 1 << (pin_spec->pin_number);
 }
 
 void gpio_toggle(gpio_dt_spec *pin_spec)
