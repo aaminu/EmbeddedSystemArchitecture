@@ -190,7 +190,7 @@ void gpio_set_ospeed(gpio_dt_spec *pin_spec, gpio_ospeed_t speed)
     *(volatile uint32_t *)(port_base + OSPEEDR) |= ospeed_reg;
 }
 
-void gpio_set(gpio_dt_spec *pin_spec, int value)
+void gpio_set(gpio_dt_spec *pin_spec, gpio_level_t pin_level)
 {
     if (pin_spec->mode != GPIO_OUTPUT)
         return;
@@ -201,7 +201,7 @@ void gpio_set(gpio_dt_spec *pin_spec, int value)
 
     volatile uint32_t bsr_reg = (*(volatile uint32_t *)(port_base + BSRR));
 
-    if (value < 1)
+    if (!(uint8_t)pin_level)
     {
         bsr_reg |= 1 << (pin_spec->pin_number + 16);
         *(volatile uint32_t *)(port_base + BSRR) |= bsr_reg;

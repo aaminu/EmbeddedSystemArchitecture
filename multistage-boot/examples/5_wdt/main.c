@@ -27,7 +27,7 @@ void main(void)
     while (millis() < 5000)
         ;
     /*Set values to the gpios*/
-    gpio_set(&led3, 1);
+    gpio_set(&led3, GPIO_OUTPUT_HIGH);
 
     /*System Tick for debaouncing*/
     unsigned int ticks = millis();

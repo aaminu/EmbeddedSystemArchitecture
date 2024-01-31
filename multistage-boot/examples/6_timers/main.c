@@ -45,9 +45,9 @@ void main(void)
     gpio_init(&led5);
 
     /*Set values to the gpios*/
-    gpio_set(&led3, 1);
-    gpio_set(&led4, 0);
-    gpio_set(&led4, 0);
+    gpio_set(&led3, GPIO_OUTPUT_HIGH);
+    gpio_set(&led4, GPIO_OUTPUT_LOW);
+    gpio_set(&led4, GPIO_OUTPUT_LOW);
 
     timer_init(&timer_1, T_MIN(3));  // 3 Minutes
     timer_init(&timer_2, 500);       // 500ms

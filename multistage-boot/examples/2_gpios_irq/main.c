@@ -25,8 +25,8 @@ void main(void)
     gpio_init_with_irq(&input, RISING_EDGE, toggle_led5);
 
     /*Set values to the gpios*/
-    gpio_set(&led3, 1); // High
-    gpio_set(&led5, 0); // Low
+    gpio_set(&led3, GPIO_OUTPUT_HIGH); // High
+    gpio_set(&led5, GPIO_OUTPUT_LOW);  // Low
 
     // For non-blocking led-blinking
     unsigned int ticks = millis();

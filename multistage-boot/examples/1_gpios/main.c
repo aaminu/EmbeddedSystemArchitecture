@@ -28,8 +28,8 @@ void main(void)
     gpio_init(&button);
 
     /*Set values to the gpios*/
-    gpio_set(&led3, 1);
-    gpio_set(&led4, 0);
+    gpio_set(&led3, GPIO_OUTPUT_HIGH);
+    gpio_set(&led4, GPIO_OUTPUT_LOW);
 
     /*System Tick for debaouncing*/
     unsigned int ticks = millis();

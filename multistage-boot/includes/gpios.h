@@ -68,6 +68,13 @@ typedef enum
     AF15, // (EVENTOUT)
 } gpio_altfunct_t;
 
+typedef enum
+{
+    GPIO_OUTPUT_LOW,
+    GPIO_OUTPUT_HIGH,
+
+} gpio_level_t;
+
 typedef struct
 {
     gpio_port_t port;
@@ -130,9 +137,9 @@ void gpio_set_altfunc(gpio_dt_spec *pin_spec, gpio_altfunct_t altfun);
  * @brief Set the state of the PIN
  * @param pin_spec gpio_dt_spec pointer to gpio config struct containing
  * port name, pin number and mode.
- * @param value Switch on or off the pin. Any non zero value is treated as a 1
+ * @param pin_level Switch on or off the pin.
  */
-void gpio_set(gpio_dt_spec *pin_spec, int value);
+void gpio_set(gpio_dt_spec *pin_spec, gpio_level_t pin_level);
 
 /**
  * @brief Toggle the state of an output pin
