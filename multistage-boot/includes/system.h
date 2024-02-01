@@ -14,6 +14,9 @@
 
 /* System specific: PLL with 8 MHz external oscillator, CPU at 168MHz */
 #define CPU_FREQ (168000000)
+#define AHB1_FREQ (CPU_FREQ)
+#define APB1_FREQ (42000000)
+#define APB2_FREQ (84000000)
 #define PLL_FULL_MASK (0x7F037FFF)
 
 /*NVIC - Nested Interrupt Vector Controller for Cortex-M*/

@@ -54,8 +54,8 @@
 #define RCC_APB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x44))
 
 /*************CLOCK*************/
-#define APB1_FREQ (42000000)
-#define APB2_FREQ (84000000)
+#define APB1_TIMER_FREQ (APB1_FREQ * 2)
+#define APB2_TIMER_FREQ (APB2_FREQ * 2)
 
 /**************RCC EN-FLAGS*******************/
 // RCC_APB1ENR ==> 42MHz
@@ -118,7 +118,7 @@ static void (*volatile callback_array[4])(void) = {
 /*******GLOBALS*******/
 int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
 {
-    if (interval_ms == 0)
+    if (interval_ms < 0)
         return -1;
 
     if ((timer_spec->timer == TIMER_3 || timer_spec->timer == TIMER_4) && (interval_ms > T_SEC(30)))
@@ -127,35 +127,79 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
     if ((timer_spec->timer == TIMER_2 || timer_spec->timer == TIMER_5) && (interval_ms > T_HRS(24)))
         return -1;
 
-    // Select a prescaler that allow Reload value tick per ms
-    uint32_t prescaler = (APB1_FREQ / 1000) - 1;
-
     // Enable RCC CLOCK
     RCC_APB1ENR |= SELECT_TIMER_EN1(timer_spec->timer);
 
-    // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE
-    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = (interval_ms * 2) - 1;
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler;
-
-    if (timer_spec->mode == ONESHOT)
+    if (interval_ms > 0)
     {
-        (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_OPM;
+        // Select a prescaler that allow Reload value tick per ms
+        uint32_t prescaler = (APB1_FREQ / 1000) - 1;
+
+        // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE
+        uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = (interval_ms * 2) - 1;
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler;
+
+        if (timer_spec->mode == ONESHOT)
+        {
+            (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_OPM;
+        }
+
+        // Generate Update Event
+        timer_generate_uev(timer_spec);
+        // Clear Update Flag
+        timer_clear_update_flag(timer_spec);
+
+        return 0;
     }
 
-    // Generate Update Event
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_EGR)) |= TIMx_EGR_UG;
+    return 0;
+}
 
+int timer_set_arr(const timer_dt_spec *timer_spec, uint32_t arr)
+{
+    if ((timer_spec->timer != TIMER_2 || timer_spec->timer != TIMER_5) && (arr > (uint16_t)-1))
+        return -1;
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = arr - 1;
+
+    // Generate Update Event
+    timer_generate_uev(timer_spec);
     // Clear Update Flag
-    (*(volatile uint32_t *)(timer_reg_base + TIMx_SR)) &= ~(TIMx_SR_UIF);
+    timer_clear_update_flag(timer_spec);
 
     return 0;
+}
+
+void timer_set_prescaler(const timer_dt_spec *timer_spec, uint16_t prescaler)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler - 1;
+
+    // Generate Update Event
+    timer_generate_uev(timer_spec);
+    // Clear Update Flag
+    timer_clear_update_flag(timer_spec);
+}
+
+void timer_generate_uev(const timer_dt_spec *timer_spec)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    // Generate Update Event
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_EGR)) |= TIMx_EGR_UG;
+}
+
+void timer_clear_update_flag(const timer_dt_spec *timer_spec)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    // Clear Update Flag
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_SR)) &= ~(TIMx_SR_UIF);
 }
 
 void timer_start(const timer_dt_spec *timer_spec)
 {
 
-    // Clear S
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
 
     // Enable CEN

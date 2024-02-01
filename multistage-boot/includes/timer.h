@@ -41,7 +41,8 @@ typedef enum
 typedef enum
 {
     CONTINOUS,
-    ONESHOT
+    ONESHOT,
+    OTHERS
 } timer_mode_t;
 
 /**
@@ -67,8 +68,12 @@ typedef void (*timer_callback_t)(void);
  *
  * @return <0 if error otherwise 0
  *
- * @note TIMER_2 & TIMER_5 can handle a maximum duration of 24Hrs,
- * consider using TIMER_3 and TIMER_4 for durations from 30secs and under
+ * @note
+ * - TIMER_2 & TIMER_5 can handle a maximum duration of 24Hrs, consider using TIMER_3 and TIMER_4 for durations from 30secs and under.
+ * @note
+ * - If interval_ms is set to zero, you must use timer_set_arr(...) and timer_set_prescaler(...) to set the trigger dutation or freqency for the timer
+ * @note
+ * - If pwm_int(..) is used in the code, then TIMER_4 becomes unavailable because it is used as an output compare/PWM mode.
  */
 int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms);
 
@@ -121,5 +126,14 @@ int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
  *
  */
 unsigned int timer_get_counter(const timer_dt_spec *timer_spec);
+
+/******************************************Advanced Usage*******************************************************/
+int timer_set_arr(const timer_dt_spec *timer_spec, uint32_t arr);
+
+void timer_set_prescaler(const timer_dt_spec *timer_spec, uint16_t prescaler);
+
+void timer_generate_uev(const timer_dt_spec *timer_spec);
+
+void timer_clear_update_flag(const timer_dt_spec *timer_spec);
 
 #endif
