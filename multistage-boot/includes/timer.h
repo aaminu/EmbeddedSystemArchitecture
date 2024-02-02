@@ -46,6 +46,24 @@ typedef enum
 } timer_mode_t;
 
 /**
+ * @brief Enum for Timer_x Channle
+ */
+typedef enum
+{
+    TIMERx_CH1,
+    TIMERx_CH2,
+    TIMERx_CH3,
+    TIMERx_CH4,
+} timer_ch_t;
+
+typedef enum
+{
+    TIMx_CCER_EN,
+    TIMx_CCER_P,
+    TIMx_CCER_NP,
+} timer_ccer_t;
+
+/**
  * @brief Container with timer configuration
  *
  */
@@ -135,5 +153,11 @@ void timer_set_prescaler(const timer_dt_spec *timer_spec, uint16_t prescaler);
 void timer_generate_uev(const timer_dt_spec *timer_spec);
 
 void timer_clear_update_flag(const timer_dt_spec *timer_spec);
+
+void timer_ccer_enable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type);
+
+void timer_ccer_disable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type);
+
+void timer_ccrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint32_t value);
 
 #endif

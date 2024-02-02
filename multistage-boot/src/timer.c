@@ -105,6 +105,34 @@
 #define TIMx_SR_UIF (1 << 0)
 #define TIMx_EGR_UG (1 << 0)
 
+#define TIMx_CCER_CC1E (1 << 0)
+#define TIMx_CCER_CC2E (1 << 4)
+#define TIMx_CCER_CC3E (1 << 8)
+#define TIMx_CCER_CC4E (1 << 12)
+#define SELECT_CCER_EN(timer_ch)                                                           \
+    ((timer_ch == TIMERx_CH1) ? TIMx_CCER_CC1E : (timer_ch == TIMERx_CH2) ? TIMx_CCER_CC2E \
+                                             : (timer_ch == TIMERx_CH3)   ? TIMx_CCER_CC3E \
+                                             : (timer_ch == TIMERx_CH4)   ? TIMx_CCER_CC4E \
+                                                                          : 0)
+#define TIMx_CCER_CC1P (1 << 1)
+#define TIMx_CCER_CC2P (1 << 5)
+#define TIMx_CCER_CC3P (1 << 9)
+#define TIMx_CCER_CC4P (1 << 13)
+#define SELECT_CCER_P(timer_ch)                                                            \
+    ((timer_ch == TIMERx_CH1) ? TIMx_CCER_CC1P : (timer_ch == TIMERx_CH2) ? TIMx_CCER_CC2P \
+                                             : (timer_ch == TIMERx_CH3)   ? TIMx_CCER_CC3P \
+                                             : (timer_ch == TIMERx_CH4)   ? TIMx_CCER_CC4P \
+                                                                          : 0)
+#define TIMx_CCER_CC1NP (1 << 3)
+#define TIMx_CCER_CC2NP (1 << 7)
+#define TIMx_CCER_CC3NP (1 << 11)
+#define TIMx_CCER_CC4NP (1 << 15)
+#define SELECT_CCER_NP(timer_ch)                                                             \
+    ((timer_ch == TIMERx_CH1) ? TIMx_CCER_CC1NP : (timer_ch == TIMERx_CH2) ? TIMx_CCER_CC2NP \
+                                              : (timer_ch == TIMERx_CH3)   ? TIMx_CCER_CC3NP \
+                                              : (timer_ch == TIMERx_CH4)   ? TIMx_CCER_CC4NP \
+                                                                           : 0)
+
 /******Static. Don't modify********/
 static void empty_callback(void) {} // Space holder
 
@@ -130,13 +158,16 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
     // Enable RCC CLOCK
     RCC_APB1ENR |= SELECT_TIMER_EN1(timer_spec->timer);
 
+    // Set Timer CR1 to reset state
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) = 0;
+
     if (interval_ms > 0)
     {
         // Select a prescaler that allow Reload value tick per ms
         uint32_t prescaler = (APB1_FREQ / 1000) - 1;
 
-        // Load ARR, PSC, Set the Mode, ad Enable UIE, ARPE
-        uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+        // Load ARR, PSC, Set the Mode
         (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = (interval_ms * 2) - 1;
         (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler;
 
@@ -251,6 +282,74 @@ unsigned int timer_get_counter(const timer_dt_spec *timer_spec)
     return ((*(volatile uint32_t *)(timer_reg_base + TIMx_CNT)) + 1) / 2;
 }
 
+void timer_ccer_enable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
+{
+    // Clear the require reg first
+    timer_ccer_ccx_disable(timer_spec, timerx_ch, ccer_type);
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    switch (ccer_type)
+    {
+    case TIMx_CCER_EN:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_EN(timerx_ch);
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_EN(timerx_ch);
+        break;
+    case TIMx_CCER_P:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_P(timerx_ch);
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_P(timerx_ch);
+        break;
+    case TIMx_CCER_NP:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_NP(timerx_ch);
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_NP(timerx_ch);
+        break;
+    default:
+        break;
+    }
+}
+
+void timer_ccer_ccx_disable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    switch (ccer_type)
+    {
+    case TIMx_CCER_EN:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_EN(timerx_ch);
+        break;
+    case TIMx_CCER_P:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_P(timerx_ch);
+        break;
+    case TIMx_CCER_NP:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_NP(timerx_ch);
+        break;
+    default:
+        break;
+    }
+}
+
+void timer_ccrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint32_t value)
+{
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    switch (timerx_ch)
+    {
+    case TIMERx_CH1:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCR1)) = value;
+        break;
+    case TIMERx_CH2:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCR2)) = value;
+        break;
+    case TIMERx_CH3:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCR3)) = value;
+        break;
+    case TIMERx_CH4:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCR4)) = value;
+        break;
+    default:
+        break;
+    }
+}
+
+/*********************************************EXTERNAL ISRs**************************************************************/
 /*Interrupt Service Routine for TIM2 */
 void _isr_tim2(void)
 {
