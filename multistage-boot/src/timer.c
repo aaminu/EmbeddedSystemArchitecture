@@ -285,21 +285,18 @@ unsigned int timer_get_counter(const timer_dt_spec *timer_spec)
 void timer_ccer_enable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
 {
     // Clear the require reg first
-    timer_ccer_ccx_disable(timer_spec, timerx_ch, ccer_type);
+    timer_ccer_disable(timer_spec, timerx_ch, ccer_type);
 
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
     switch (ccer_type)
     {
     case TIMx_CCER_EN:
-        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_EN(timerx_ch);
         (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_EN(timerx_ch);
         break;
     case TIMx_CCER_P:
-        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_P(timerx_ch);
         (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_P(timerx_ch);
         break;
     case TIMx_CCER_NP:
-        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) &= ~SELECT_CCER_NP(timerx_ch);
         (*(volatile uint32_t *)(timer_reg_base + TIMx_CCER)) |= SELECT_CCER_NP(timerx_ch);
         break;
     default:
@@ -307,7 +304,7 @@ void timer_ccer_enable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, ti
     }
 }
 
-void timer_ccer_ccx_disable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
+void timer_ccer_disable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
 {
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
     switch (ccer_type)
