@@ -79,7 +79,7 @@ typedef struct
 typedef void (*timer_callback_t)(void);
 
 /**
- * @brief Initialize timer with  a callback of what action to perform
+ * @brief Initialize timer
  *
  * @param timer_spec - Container for timer configuration
  * @param interval_ms - Interval for timer
@@ -96,6 +96,14 @@ typedef void (*timer_callback_t)(void);
 int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms);
 
 /**
+ * @brief Determines if the counter of the timer is buffered or not
+ *
+ * @note
+ * - If used, the timer counter loads a new value from the ARR only after a update event (UEV)
+ */
+void timer_set_apre(const timer_dt_spec *timer_spec);
+
+/**
  * @brief Register a new callback for the timer
  *
  * @param timer_spec - Container for timer configuration
@@ -105,7 +113,7 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms);
 void timer_register_callback(const timer_dt_spec *timer_spec, timer_callback_t callback);
 
 /**
- * @brief Initialize timer with  a callback of what action to perform
+ * @brief Start the Timer
  *
  * @param timer_spec - Container for timer configuration
  *
@@ -114,6 +122,13 @@ void timer_register_callback(const timer_dt_spec *timer_spec, timer_callback_t c
  *
  */
 void timer_start(const timer_dt_spec *timer_spec);
+
+/**
+ * @brief Stop the Timer
+ *
+ * @param timer_spec - Container for timer configuration
+ */
+void timer_stop(const timer_dt_spec *timer_spec);
 
 /**
  * @brief Deregister any callback
@@ -137,7 +152,11 @@ int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
  * @brief Get the counter of the timer. This returns the timer in milliseconds
  * and can be used for measuring short (30s Max) or long (24Hrs Max) durations.
  *
- * @note Consider using millis() provider by in systick.h for much longer duration
+ * @note
+ * - This should be used when timer_init(&timer_spec, xx_ms > 0) is used, otherwise
+ * use timer_get_counter_raw(..) to get the timer tick in the resolution set
+ * @note
+ * - Consider using millis() provider by in systick.h for much longer duration
  *
  * @param timer_spec - Container for timer configuration
  * @param interval_ms - New Interval for ttimer
@@ -146,6 +165,10 @@ int timer_duration_change(const timer_dt_spec *timer_spec, uint32_t interval_ms)
 unsigned int timer_get_counter(const timer_dt_spec *timer_spec);
 
 /******************************************Advanced Usage*******************************************************/
+unsigned int timer_get_arr(const timer_dt_spec *timer_spec);
+
+unsigned int timer_get_counter_raw(const timer_dt_spec *timer_spec);
+
 int timer_set_arr(const timer_dt_spec *timer_spec, uint32_t arr);
 
 void timer_set_prescaler(const timer_dt_spec *timer_spec, uint16_t prescaler);
@@ -160,4 +183,7 @@ void timer_ccer_disable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, t
 
 void timer_ccrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint32_t value);
 
+void timer_ccmrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint8_t value);
+
+void timer_ccmrx_reset(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch);
 #endif

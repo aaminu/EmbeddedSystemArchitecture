@@ -13,6 +13,12 @@ typedef enum
 
 } pwm_no_t;
 
-int pwm_int(pwm_no_t pwm_no, uint32_t freq, uint8_t duty_cycle);
+int pwm_init(pwm_no_t pwm_no, uint32_t freq, uint8_t duty_cycle);
+
+void pwm_start(pwm_no_t pwm_no);
+
+void pwm_change_dutycyle(pwm_no_t pwm_no, uint8_t duty_cycle);
+
+void pwm_stop(pwm_no_t pwm_no);
 
 #endif

@@ -109,4 +109,10 @@ void sys_clock_config(void);
  * @brief Enable the FPU
  */
 void enable_fpu(void);
+
+/**
+ * @brief Enable the MPU
+ */
+int mpu_enable(void);
+
 #endif
