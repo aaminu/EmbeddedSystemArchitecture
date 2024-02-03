@@ -176,6 +176,8 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
             (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_OPM;
         }
 
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_ARPE;
+
         // Generate Update Event
         timer_generate_uev(timer_spec);
         // Clear Update Flag
@@ -187,6 +189,12 @@ int timer_init(const timer_dt_spec *timer_spec, uint32_t interval_ms)
     return 0;
 }
 
+void timer_set_apre(const timer_dt_spec *timer_spec)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_ARPE;
+}
+
 int timer_set_arr(const timer_dt_spec *timer_spec, uint32_t arr)
 {
     if ((timer_spec->timer != TIMER_2 || timer_spec->timer != TIMER_5) && (arr > (uint16_t)-1))
@@ -195,23 +203,19 @@ int timer_set_arr(const timer_dt_spec *timer_spec, uint32_t arr)
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
     (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) = arr - 1;
 
-    // Generate Update Event
-    timer_generate_uev(timer_spec);
-    // Clear Update Flag
-    timer_clear_update_flag(timer_spec);
-
     return 0;
+}
+
+unsigned int timer_get_arr(const timer_dt_spec *timer_spec)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    return (*(volatile uint32_t *)(timer_reg_base + TIMx_ARR)) + 1;
 }
 
 void timer_set_prescaler(const timer_dt_spec *timer_spec, uint16_t prescaler)
 {
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
     (*(volatile uint32_t *)(timer_reg_base + TIMx_PSC)) = prescaler - 1;
-
-    // Generate Update Event
-    timer_generate_uev(timer_spec);
-    // Clear Update Flag
-    timer_clear_update_flag(timer_spec);
 }
 
 void timer_generate_uev(const timer_dt_spec *timer_spec)
@@ -235,6 +239,15 @@ void timer_start(const timer_dt_spec *timer_spec)
 
     // Enable CEN
     (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) |= TIMx_CR1_CEN;
+}
+
+void timer_stop(const timer_dt_spec *timer_spec)
+{
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+
+    // Disable CEN
+    (*(volatile uint32_t *)(timer_reg_base + TIMx_CR1)) &= ~TIMx_CR1_CEN;
 }
 
 void timer_register_callback(const timer_dt_spec *timer_spec, timer_callback_t callback)
@@ -280,6 +293,14 @@ unsigned int timer_get_counter(const timer_dt_spec *timer_spec)
     uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
 
     return ((*(volatile uint32_t *)(timer_reg_base + TIMx_CNT)) + 1) / 2;
+}
+
+unsigned int timer_get_counter_raw(const timer_dt_spec *timer_spec)
+{
+
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+
+    return ((*(volatile uint32_t *)(timer_reg_base + TIMx_CNT)) + 1);
 }
 
 void timer_ccer_enable(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, timer_ccer_t ccer_type)
@@ -346,6 +367,49 @@ void timer_ccrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint3
     }
 }
 
+void timer_ccmrx_set(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch, uint8_t value)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    switch (timerx_ch)
+    {
+    case TIMERx_CH1:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR1)) |= value;
+        break;
+    case TIMERx_CH2:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR1)) |= (value << 8);
+        break;
+    case TIMERx_CH3:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR2)) |= value;
+        break;
+    case TIMERx_CH4:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR2)) |= (value << 8);
+        break;
+    default:
+        break;
+    }
+}
+
+void timer_ccmrx_reset(const timer_dt_spec *timer_spec, timer_ch_t timerx_ch)
+{
+    uint32_t timer_reg_base = (uint32_t)SELECT_TIMER(timer_spec->timer);
+    switch (timerx_ch)
+    {
+    case TIMERx_CH1:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR1)) &= ~(0xFF);
+        break;
+    case TIMERx_CH2:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR1)) &= ~(0xFF << 8);
+        break;
+    case TIMERx_CH3:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR2)) &= ~(0xFF);
+        break;
+    case TIMERx_CH4:
+        (*(volatile uint32_t *)(timer_reg_base + TIMx_CCMR2)) &= ~(0xFF << 8);
+        break;
+    default:
+        break;
+    }
+}
 /*********************************************EXTERNAL ISRs**************************************************************/
 /*Interrupt Service Routine for TIM2 */
 void _isr_tim2(void)
