@@ -88,12 +88,24 @@
  */
 #define SHCSR (*(volatile uint32_t *)(SCB_BASE + 0x24))
 
+#define GUARD_SIZE (0x400)
+
 extern uint32_t _END_STACK;
+extern uint32_t _END_HEAP;
+extern uint32_t _FLASH;
+extern uint32_t _SRAM;
 extern uint32_t STACK_SIZE;
-extern uint32_t GUARD_SIZE;
 
-static void mpu_set_region(int region, uint32_t start, uint32_t attr);
+/******************************STATIC**********************************/
+static void mpu_set_region(int region, uint32_t start, uint32_t attr)
+{
+    MPU_RNR = region;
+    MPU_RBAR = start;
+    MPU_RNR = region;
+    MPU_RASR = attr;
+}
 
+/******************************GLOBAL*********************************/
 int mpu_enable(void)
 {
     volatile uint32_t type;
@@ -111,17 +123,17 @@ int mpu_enable(void)
     MPU_CTRL = 0;
 
     /*Set Flash as Read-Only, Executable*/
-    start = 0x00000000;
-    attr = RASR_ENABLED | MPU_SIZE_256K | RASR_SCB | RASR_RDONLY;
+    start = (uint32_t)&_FLASH;
+    attr = RASR_ENABLED | MPU_SIZE_512K | RASR_SCB | RASR_RDONLY;
     mpu_set_region(0, start, attr);
 
     /*Set RAM as read_write, not executable*/
-    start = 0x20000000;
-    attr = RASR_ENABLED | MPU_SIZE_64K | RASR_SCB | RASR_RW | RASR_NOEXEC;
+    start = (uint32_t)&_SRAM;
+    attr = RASR_ENABLED | MPU_SIZE_128K | RASR_SCB | RASR_RW | RASR_NOEXEC;
     mpu_set_region(1, start, attr);
 
     /*1KB Guard between Heap and STACK*/
-    start = (uint32_t)(&_END_STACK) - (STACK_SIZE + GUARD_SIZE);
+    start = (uint32_t)(&_END_HEAP) + GUARD_SIZE;
     attr = RASR_ENABLED | MPU_SIZE_1K | RASR_SCB | RASR_NOACCESS | RASR_NOEXEC;
     mpu_set_region(2, start, attr); // Priority over region 1
 
@@ -136,12 +148,4 @@ int mpu_enable(void)
     /* Enable the MPU, no background region */
     MPU_CTRL = 1;
     return 0;
-}
-
-static void mpu_set_region(int region, uint32_t start, uint32_t attr)
-{
-    MPU_RNR = region;
-    MPU_RBAR = start;
-    MPU_RNR = region;
-    MPU_RASR = attr;
 }
