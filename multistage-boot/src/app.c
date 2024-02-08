@@ -6,9 +6,7 @@ extern uint32_t _start_data;
 extern uint32_t _end_data;
 extern uint32_t _start_bss;
 extern uint32_t _end_bss;
-
 extern uint32_t _END_STACK;
-extern uint32_t _START_HEAP;
 
 static uint32_t sp;
 

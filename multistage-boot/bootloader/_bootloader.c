@@ -5,11 +5,11 @@
 #define BOOTLOADER
 
 /* symbols for memory locations in declared in linker */
-extern uint32_t _stored_data; // Load memory area on Flash
-extern uint32_t _start_data;
-extern uint32_t _end_data;
-extern uint32_t _start_bss;
-extern uint32_t _end_bss;
+extern uint32_t _stored_data_bl; // Load memory area on Flash
+extern uint32_t _start_data_bl;
+extern uint32_t _end_data_bl;
+extern uint32_t _start_bss_bl;
+extern uint32_t _end_bss_bl;
 extern uint32_t _END_STACK;
 
 void main_bl(void);
@@ -19,10 +19,10 @@ void isr_reset_bl(void)
     volatile uint32_t *src, *dst;
 
     /*Initialized data copy (.data)*/
-    src = (uint32_t *)&_stored_data;
-    dst = (uint32_t *)&_start_data;
+    src = (uint32_t *)&_stored_data_bl;
+    dst = (uint32_t *)&_start_data_bl;
 
-    while (dst != (uint32_t *)&_end_data)
+    while (dst != (uint32_t *)&_end_data_bl)
     {
         *dst = *src;
         dst++;
@@ -30,8 +30,8 @@ void isr_reset_bl(void)
     }
 
     /*zero out uninitilized values*/
-    dst = (uint32_t *)&_start_bss;
-    while (dst != (uint32_t *)&_end_bss)
+    dst = (uint32_t *)&_start_bss_bl;
+    while (dst != (uint32_t *)&_end_bss_bl)
     {
         *dst = 0u;
         dst++;

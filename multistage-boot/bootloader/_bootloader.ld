@@ -9,34 +9,34 @@ SECTIONS
 {
     .text :
     {
-        _start_text = .;
+        _start_text_bl = .;
         KEEP(*(.isr_vector))
         *(.text*)
         *(.rodata*)
         . = ALIGN(4);
-        _end_text = .;
+        _end_text_bl = .;
     } > FLASH
 
-    _stored_data = .;
+    _stored_data_bl = .;
 
-    .data : AT(_stored_data)
+    .data : AT(_stored_data_bl)
     {
-        _start_data = .;
+        _start_data_bl = .;
         *(.data*)
         . = ALIGN(4);
-        _end_data = .;
+        _end_data_bl = .;
     } > SRAM
 
     .bss (NOLOAD) : 
     {
-        _start_bss = .;
+        _start_bss_bl = .;
         *(.bss*)
         *(COMMON)
         . = ALIGN(4);
-        _end_bss = .;
-        _end = .;
+        _end_bss_bl = .;
+        _end_bl = .;
     } > SRAM
     . = ALIGN(4);
 }
 
-PROVIDE(_END_STACK = ORIGIN(CCRAM) + LENGTH(CCRAM));
+PROVIDE(_END_STACK = ORIGIN(SRAM) + LENGTH(SRAM));
