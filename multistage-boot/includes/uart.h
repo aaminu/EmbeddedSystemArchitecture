@@ -1,8 +1,6 @@
 #ifndef UART_H_
 #define UART_H_
 
-#include "gpios.h"
-
 /** @brief Parity modes */
 typedef enum
 {
@@ -36,6 +34,14 @@ typedef enum
     UART_CFG_FLOW_CTRL_RTS_CTS, /**< RTS/CTS flow control */
 } uart_config_flow_control_t;
 
+/** @brief Serial Channel to use. */
+typedef enum
+{
+    UART_1, /**<PORT:A, TX:, RX:, CTS:, RTS:  */
+    UART_2, /**<PORT:D, TX:, RX:, CTS:, RTS:  */
+    UART_3, /**<PORT:D, TX:, RX:, CTS:, RTS:  */
+} uart_serial_ch_t;
+
 /** @brief Configuration Container for UART. */
 typedef struct
 {
@@ -50,12 +56,37 @@ typedef struct
 /**
  * @brief Configure Uart
  *
- * @param tx TX Pin Spec
- * @param rx RX Pin Spec
+ * @param serial_ch Serial Channel
  * @param uart_config Configuration Container
  *
  * @return <0 if error else 0
  */
-int uart_configure(gpio_dt_spec *tx, gpio_dt_spec *rx, uart_config_t *uart_config);
+int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config);
+
+/**
+ * @brief Read a Single Character
+ *
+ * @param serial_ch Serial Channel
+ * @return First item infront the RX buffer
+ */
+unsigned char uart_read(uart_serial_ch_t serial_ch);
+
+/**
+ * @brief Check if data is available to be read
+ *
+ * @param serial_ch Serial Channel
+ * @return 1 if yes otherwise 0
+ */
+uint8_t uart_data_available(uart_serial_ch_t serial_ch);
+
+/**
+ * @brief Copy number of character specified into buffer
+ *
+ * @param serial_ch  Serial Channel
+ * @param buffer  Recieving Buffer
+ * @param size Number if characters to copy
+ * @return > 0 if copied otherwise 0
+ */
+int uart_read_into(uart_serial_ch_t serial_ch, unsigned char *buffer, const int size);
 
 #endif
