@@ -9,7 +9,9 @@ typedef enum
     PORT_B,
     PORT_C,
     PORT_D,
-    PORT_E
+    PORT_E,
+    /*Add new ports above*/
+    PORT_COUNT
 } gpio_port_t;
 
 typedef enum
@@ -50,22 +52,22 @@ typedef enum
 
 typedef enum
 {
-    AF0,  //(system)
-    AF1,  // (TIM1/TIM2)
-    AF2,  // (TIM3..5)
-    AF3,  // (TIM8..11)
-    AF4,  // (I2C1..3)
-    AF5,  // (SPI1/SPI2)
-    AF6,  // (SPI3)
-    AF7,  // (USART1..3)
-    AF8,  // (USART4..6)
-    AF9,  // (CAN1/CAN2, TIM12..14)
-    AF10, // (OTG_FS, OTG_HS)
-    AF11, // (ETH)
-    AF12, // (FSMC, SDIO, OTG_HS(1))
-    AF13, // (DCMI)
+    AF0,  /**(system)*/
+    AF1,  /** (TIM1/TIM2)*/
+    AF2,  /** (TIM3..5)*/
+    AF3,  /** (TIM8..11)*/
+    AF4,  /** (I2C1..3)*/
+    AF5,  /** (SPI1/SPI2)*/
+    AF6,  /** (SPI3)*/
+    AF7,  /** (USART1..3)*/
+    AF8,  /** (USART4..6)*/
+    AF9,  /** (CAN1/CAN2, TIM12..14)*/
+    AF10, /** (OTG_FS, OTG_HS)*/
+    AF11, /** (ETH)*/
+    AF12, /** (FSMC, SDIO, OTG_HS(1))*/
+    AF13, /** (DCMI)*/
     AF14,
-    AF15, // (EVENTOUT)
+    AF15, /**(EVENTOUT)*/
 } gpio_altfunct_t;
 
 typedef enum
