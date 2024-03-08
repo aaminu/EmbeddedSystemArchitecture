@@ -37,9 +37,9 @@ typedef enum
 /** @brief Serial Channel to use. */
 typedef enum
 {
-    UART_1, /**<PORT:A, TX:, RX:, CTS:, RTS:  */
-    UART_2, /**<PORT:D, TX:, RX:, CTS:, RTS:  */
-    UART_3, /**<PORT:D, TX:, RX:, CTS:, RTS:  */
+    UART_1, /**<PORT:A, TX:9, RX:10, CTS:11, RTS:12  */
+    UART_2, /**<PORT:D, TX:5, RX:6, CTS:3, RTS:4  */
+    UART_3, /**<PORT:D, TX:8, RX:9, CTS:11, RTS:12  */
 } uart_serial_ch_t;
 
 /** @brief Configuration Container for UART. */
