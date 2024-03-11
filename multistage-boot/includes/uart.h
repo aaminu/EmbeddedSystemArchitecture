@@ -21,10 +21,11 @@ typedef enum
 /** @brief Number of data bits. */
 typedef enum
 {
-    UART_CFG_DATA_BITS_5, /**< 5 data bits */
-    UART_CFG_DATA_BITS_6, /**< 6 data bits */
-    UART_CFG_DATA_BITS_7, /**< 7 data bits */
+    // UART_CFG_DATA_BITS_5, /**< 5 data bits */
+    // UART_CFG_DATA_BITS_6, /**< 6 data bits */
+    // UART_CFG_DATA_BITS_7, /**< 7 data bits */
     UART_CFG_DATA_BITS_8, /**< 8 data bits */
+    UART_CFG_DATA_BITS_9, /**< 9 data bits */
 } uart_config_data_bits_t;
 
 /** @brief Hardware flow control options. */
