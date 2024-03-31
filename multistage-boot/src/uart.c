@@ -48,9 +48,8 @@
 #define CR1_TE (1 << 3)       // Transmitter Enable
 #define CR1_PS (1 << 9)       // Parity Selection: Odd Parity
 #define CR1_PCE (1 << 10)     // Parity control enable
-#define CR1_M_8bits (0 << 12) // Word length:  1 Start bit, 8 Data bits, n Stop bit
 #define CR1_M_9bits (1 << 12) // Word length:  1 Start bit, 9 Data bits, n Stop bit
-#define CR1_UE (1 << 14)      // USART Enable
+#define CR1_UE (1 << 13)      // USART Enable
 #define CR3_DMAR (1 << 6)     // DMA enable receiver
 #define CR3_DMAT (1 << 7)     // DMA enable transmitter
 #define CR3_RTSE (1 << 8)     // RTS enable
@@ -157,7 +156,7 @@ static void set_baud_rate(volatile uint32_t *reg_addr, uart_serial_ch_t *serial_
         break;
     }
 
-    uint32_t usartdiv, mantissa, div_mantissa, div_fraction, brr;
+    uint32_t usartdiv, div_mantissa, div_fraction;
 
     // USARTDIV = fCK / (8 * (2 - OVER8) * baud), assuming over8 = 0
     // Multiply by 100 bring the demical point into the integer
@@ -215,7 +214,7 @@ int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config)
     gpio_set_altfunc(&pin_specs, AF7);
 
     // Flow control gpio pin setup
-    if (uart_config->flow_ctrl == UART_CFG_FLOW_CTRL_NONE)
+    if (uart_config->flow_ctrl == UART_CFG_FLOW_CTRL_RTS_CTS)
     {
         // rts
         pin_specs.pin_number = pins.rts;
@@ -234,10 +233,13 @@ int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config)
     // Get the base reg
     volatile uint32_t serial_base_reg = SELECT_SERIAL_BASE(serial_ch);
 
+    // Enable UART
+    *(volatile uint32_t *)(serial_base_reg + USART_CR1) |= CR1_UE;
+
     // Select Word Length
     if (uart_config->data_bits == UART_CFG_DATA_BITS_8)
     {
-        *(volatile uint32_t *)(serial_base_reg + USART_CR1) &= CR1_M_8bits;
+        *(volatile uint32_t *)(serial_base_reg + USART_CR1) &= ~(CR1_M_9bits);
     }
     else if (uart_config->data_bits == UART_CFG_DATA_BITS_9)
     {
@@ -259,16 +261,14 @@ int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config)
     }
 
     // Set Baudrate
-    set_baud_rate((volatile uint32_t *)(serial_base_reg + USART_BRR), &(uart_config->baudrate), &(uart_config->baudrate));
+    set_baud_rate((volatile uint32_t *)(serial_base_reg + USART_BRR), &serial_ch, &(uart_config->baudrate));
 
     // Select flowcontrol
     // TODO: Enable flowcontrol
 
     // Enable TX and RX
-    *(volatile uint32_t *)(serial_base_reg + USART_CR1) |= (CR1_RE | CR1_TE);
-
-    // Enable UART
-    *(volatile uint32_t *)(serial_base_reg + USART_CR1) |= CR1_UE;
+    //*(volatile uint32_t *)(serial_base_reg + USART_CR1) |= (CR1_RE | CR1_TE);
+    *(volatile uint32_t *)(serial_base_reg + USART_CR1) |= CR1_TE;
 
     return 0;
 }
@@ -289,4 +289,32 @@ int uart_read_into(uart_serial_ch_t serial_ch, unsigned char *buffer, const int 
 {
 
     return 0;
+}
+
+int uart_write(uart_serial_ch_t serial_ch, const char *buffer)
+{
+    volatile uint32_t serial_base_reg = SELECT_SERIAL_BASE(serial_ch);
+    if (!serial_base_reg)
+        return -1;
+
+    // Get SR & DR
+    volatile uint32_t *status_reg = (volatile uint32_t *)(serial_base_reg + USART_SR);
+    volatile uint32_t *data_reg = (volatile uint32_t *)(serial_base_reg + USART_DR);
+    int count = 0;
+    const char *ch = buffer;
+
+    while (*ch)
+    {
+        // Check to see if TXE has been set by HW indicating TDR is empty
+        while (!(*status_reg & SR_TXE))
+        {
+            continue;
+        }
+
+        *data_reg = *ch;
+        count++;
+        ch++;
+    }
+
+    return count;
 }

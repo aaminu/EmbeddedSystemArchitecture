@@ -81,7 +81,7 @@ unsigned char uart_read(uart_serial_ch_t serial_ch);
 uint8_t uart_data_available(uart_serial_ch_t serial_ch);
 
 /**
- * @brief Copy number of character specified into buffer
+ * @brief Read number of RX characters into a buffer
  *
  * @param serial_ch  Serial Channel
  * @param buffer  Recieving Buffer
@@ -89,5 +89,15 @@ uint8_t uart_data_available(uart_serial_ch_t serial_ch);
  * @return > 0 if copied otherwise 0
  */
 int uart_read_into(uart_serial_ch_t serial_ch, unsigned char *buffer, const int size);
+
+/**
+ * @brief Transmit content of buffer via RX
+ *
+ * @param serial_ch Serial Channel
+ * @param buffer Message buffer
+ * @retval int number of charcaters sent excluding null terminator
+ * @retval < 0 if error
+ */
+int uart_write(uart_serial_ch_t serial_ch, const char *buffer);
 
 #endif
