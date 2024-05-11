@@ -2,7 +2,6 @@
 
 This code base works on a single reference board`STM32F407-DISC` so far following the ARMv7-M Architecture. The ADC Pin mapping for the refrence board is highlighted below:
 
-- PA0: ADC123_IN0
 
 | Port | Pin | ADC Controller | Channel |
 |:---:|:---:|:---: |:---:|

@@ -65,25 +65,33 @@
 /** @brief Container for the uart pins*/
 struct __uart_pins
 {
-    gpio_port_t port;
     uint8_t tx;
     uint8_t rx;
     uint8_t rts;
     uint8_t cts;
+    gpio_port_t port_tx;
+    gpio_port_t port_rx;
+    gpio_port_t port_rts;
+    gpio_port_t port_cts;
 };
 
-#define _UART_INT_STRUCT(port_, tx_, rx_, rts_, cts_) \
-    ((struct __uart_pins){.port = (port_),            \
-                          .tx = (tx_),                \
-                          .rx = (rx_),                \
-                          .rts = (rts_),              \
-                          .cts = (cts_)})
+#define _UART_INT_STRUCT(port_tx_, tx_, port_rx_, rx_, port_rts_, rts_, port_cts_, cts_) \
+    ((struct __uart_pins){                                                               \
+        .tx = (tx_),                                                                     \
+        .rx = (rx_),                                                                     \
+        .rts = (rts_),                                                                   \
+        .cts = (cts_),                                                                   \
+        .port_tx = (port_tx_),                                                           \
+        .port_rx = (port_rx_),                                                           \
+        .port_rts = (port_rts_),                                                         \
+        .port_cts = (port_cts_),                                                         \
+    })
 
-#define _UART_SERIAL_SELECT(uart_serial)                                 \
-    ((uart_serial == UART_1)   ? _UART_INT_STRUCT(PORT_A, 9, 10, 12, 11) \
-     : (uart_serial == UART_2) ? _UART_INT_STRUCT(PORT_D, 5, 6, 4, 3)    \
-     : (uart_serial == UART_3) ? _UART_INT_STRUCT(PORT_D, 8, 9, 12, 11)  \
-                               : _UART_INT_STRUCT(PORT_COUNT, 0, 0, 0, 0))
+#define _UART_SERIAL_SELECT(uart_serial)                                                         \
+    ((uart_serial == UART_1)   ? _UART_INT_STRUCT(PORT_B, 6, PORT_A, 10, PORT_A, 12, PORT_A, 11) \
+     : (uart_serial == UART_2) ? _UART_INT_STRUCT(PORT_D, 5, PORT_D, 6, PORT_D, 4, PORT_D, 3)    \
+     : (uart_serial == UART_3) ? _UART_INT_STRUCT(PORT_D, 8, PORT_D, 9, PORT_D, 12, PORT_D, 11)  \
+                               : _UART_INT_STRUCT(PORT_COUNT, 0, PORT_COUNT, 0, PORT_COUNT, 0, PORT_COUNT, 0))
 
 /******Static. Don't modify********/
 
@@ -197,19 +205,20 @@ static void set_baud_rate(volatile uint32_t *reg_addr, uart_serial_ch_t *serial_
 int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config)
 {
     struct __uart_pins pins = _UART_SERIAL_SELECT(serial_ch);
-    if (pins.port == PORT_COUNT)
+    if (pins.port_tx == PORT_COUNT)
         return -1;
 
     // TX gpio pin setup
     gpio_dt_spec pin_specs = {
         .mode = GPIO_ALT_FUNC,
-        .port = pins.port,
+        .port = pins.port_tx,
         .pin_number = pins.tx};
     gpio_init(&pin_specs);
     gpio_set_altfunc(&pin_specs, AF7);
 
-    // RX TX gpio pin setup
+    // RX gpio pin setup
     pin_specs.pin_number = pins.rx;
+    pin_specs.port = pins.port_rx;
     gpio_init(&pin_specs);
     gpio_set_altfunc(&pin_specs, AF7);
 
@@ -218,11 +227,13 @@ int uart_configure(uart_serial_ch_t serial_ch, uart_config_t *uart_config)
     {
         // rts
         pin_specs.pin_number = pins.rts;
+        pin_specs.port = pins.port_rts;
         gpio_init(&pin_specs);
         gpio_set_altfunc(&pin_specs, AF7);
 
         // cts
         pin_specs.pin_number = pins.cts;
+        pin_specs.port = pins.port_cts;
         gpio_init(&pin_specs);
         gpio_set_altfunc(&pin_specs, AF7);
     }
