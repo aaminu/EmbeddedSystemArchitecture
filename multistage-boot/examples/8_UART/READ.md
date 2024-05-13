@@ -5,7 +5,7 @@ This code base works on a single reference board `STM32F407-DISC` so far followi
 | Port | Pin | UART Pin |
 |:---:|:---:|:---: |
 | B | 6 | TX | 
-| A | 10 | RX | 
+| B | 7 | RX | 
 | A | 12 | RTS |  
 | A | 11 |CTS | 
 

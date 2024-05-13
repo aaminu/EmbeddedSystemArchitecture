@@ -88,7 +88,7 @@ struct __uart_pins
     })
 
 #define _UART_SERIAL_SELECT(uart_serial)                                                         \
-    ((uart_serial == UART_1)   ? _UART_INT_STRUCT(PORT_B, 6, PORT_A, 10, PORT_A, 12, PORT_A, 11) \
+    ((uart_serial == UART_1)   ? _UART_INT_STRUCT(PORT_B, 6, PORT 7, 10, PORT_A, 12, PORT_A, 11) \
      : (uart_serial == UART_2) ? _UART_INT_STRUCT(PORT_D, 5, PORT_D, 6, PORT_D, 4, PORT_D, 3)    \
      : (uart_serial == UART_3) ? _UART_INT_STRUCT(PORT_D, 8, PORT_D, 9, PORT_D, 12, PORT_D, 11)  \
                                : _UART_INT_STRUCT(PORT_COUNT, 0, PORT_COUNT, 0, PORT_COUNT, 0, PORT_COUNT, 0))
