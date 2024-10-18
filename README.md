@@ -2,7 +2,7 @@
 This repository contains my work on programming the STM32 Cortex M4 microcontroller from the ground up. Instead of using pre-built libraries like STM32 HAL or CMSIS, I'm manually setting up registers, configuring clocks, and developing my own hardware abstraction layer (HAL) to interact with peripherals. This project aims to gain a deeper understanding of the microcontroller's architecture and low-level operations, with a focus on performance optimization and control.
 
 ## **Usage**
-### **Makefile**
+**Under Developement**. However, you can check the example folder for each peripheral already implemented.
 
 ### **Makefile**
 Each folder has its own makefiles. One problem I encountered initially was my makefile not properly formatted, this can be checked by issuing `cat -e -t -v <makefile_name>`. The output will have $ denoting line endings and ^I indicating tab.
