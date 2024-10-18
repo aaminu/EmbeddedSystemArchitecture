@@ -1,5 +1,5 @@
 ## About
-
+This repository contains my work on programming the STM32 Cortex M4 microcontroller from the ground up. Instead of using pre-built libraries like STM32 HAL or CMSIS, I'm manually setting up registers, configuring clocks, and developing my own hardware abstraction layer (HAL) to interact with peripherals. This project aims to gain a deeper understanding of the microcontroller's architecture and low-level operations, with a focus on performance optimization and control.
 
 ## **Usage**
 ### **Makefile**
@@ -69,3 +69,8 @@ Furthermore, one can connect to the openocd server by using the following comman
     > flash write_image <path/to/image.bin> <start address>
     ```
 Finally, openocd path is located at  `/usr/share/openocd/`
+
+### Credits
+- Embedded System Architecture - Dainele Lacamera
+- [controllerstech](https://controllerstech.com/)
+- STM32 Board Specifications and Documentations
